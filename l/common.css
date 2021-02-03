@@ -1,0 +1,36 @@
+@charset "UTF-8";
+*{
+ margin:0;
+ padding:0;
+ outline:none;
+ -webkit-box-sizing:border-box;
+ -moz-box-sizing:border-box;
+ -ms-box-sizing:border-box;
+ -o-box-sizing:border-box;
+ box-sizing:border-box;
+}
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+::-webkit-scrollbar-thumb{
+  background:rgba(0,0,0,.2);
+  border-radius:3px;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:#666;
+}
+::-webkit-scrollbar-corner{
+  background:transparent;
+}
+textarea.md{display:none}
+#output{
+  padding:20px;
+  background:#000;
+  color:#fff;
+  font-size:13px;
+  display:none;
+}
