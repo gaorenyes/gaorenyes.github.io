@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>老黄历</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="lunar,阳历,阴历,公历,农历" />
+<meta name="description" content="lunar是一个无依赖的支持阳历和阴历的日历工具库。" />
+<meta name="author" content="6tail" />
+<style>body{background-color:#eef7f2}</style>
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="highlight.min.css">
+<link rel="stylesheet" href="markdown.css">
+<link rel="stylesheet" href="page.css">
+<style type="text/css">
+.line{
+  margin:20px;
+}
+.line input{
+  padding:5px;
+}
+.huangli{}
+.huangli div{
+  margin-top:20px;
+}
+.markdown-body td a{
+  margin-left:2px;
+  color:#007CD5;
+  padding:0 6px;
+  -webkit-border-radius:50%;
+ -moz-border-radius:50%;
+ -ms-border-radius:50%;
+ -o-border-radius:50%;
+ border-radius:50%;
+}
+.markdown-body td a:hover{
+  background:#007CD5;
+  color:#fff;
+  text-decoration:none;
+}
+
+</style>
+</head>
+<body>
+<div style="background-color:#eef7f2;" class="article">
+
+<textarea class="md">
+
+## 老黄历
+
+请填写阳历（公历）时间，默认为当日：
+</textarea>
+<div class="line"><input id="year" type="text"> 年 <input id="month" type="text"> 月 <input id="day" type="text"> 日</div>
+
+<div class="huangli">
+<style type="text/css">
+.huangli table tbody td{background-color:#eef7f2;}
+</style>  
+  <table>
+    <tbody>
+      <tr>
+        <td width="120">公历</td>
+        <td id="c"></td>
+      </tr>
+      <tr>
+        <td>农历</td>
+        <td id="b"></td>
+      </tr>
+      <tr>
+        <td>年</td>
+        <td id="a"></td>
+      </tr>
+      <tr>
+        <td>月</td>
+        <td id="a1"></td>
+      </tr>
+      <tr>
+        <td>日</td>
+        <td id="a2"></td>
+      </tr>
+      <tr>
+        <td>儒略日</td>
+        <td id="a3"></td>
+      </tr>
+      <tr>
+        <td>月名</td>
+        <td id="m"></td>
+      </tr>
+      <tr>
+        <td>月相</td>
+        <td id="yuexiang"></td>
+      </tr>
+      <tr>
+        <td>七十二候</td>
+        <td id="wuhou"></td>
+      </tr>
+      <tr>
+        <td>六曜</td>
+        <td id="liuyao"></td>
+      </tr>
+      <tr>
+        <td>彭祖百忌</td>
+        <td id="d"></td>
+      </tr>
+      <tr>
+        <td>当日宜忌</td>
+        <td id="yj"></td>
+      </tr>
+      <tr>
+        <td>值日吉神</td>
+        <td id="js"></td>
+      </tr>
+      <tr>
+        <td>值日凶煞</td>
+        <td id="xs"></td>
+      </tr>
+      <tr>
+        <td>当日相冲</td>
+        <td id="e"></td>
+      </tr>
+      <tr>
+        <td>当日相煞</td>
+        <td id="fd"></td>
+      </tr>
+      <tr>
+        <td>星宿</td>
+        <td id="g"></td>
+      </tr>
+      <tr>
+        <td>星宿歌诀</td>
+        <td id="g1"></td>
+      </tr>
+      <tr>
+        <td>值日贵神</td>
+        <td id="h"></td>
+      </tr>
+      <tr>
+        <td>值日喜神</td>
+        <td id="i"></td>
+      </tr>
+      <tr>
+        <td>值日福神</td>
+        <td id="i1"></td>
+      </tr>
+      <tr>
+        <td>值日财神</td>
+        <td id="i2"></td>
+      </tr>
+      <tr>
+        <td>值月胎神</td>
+        <td id="i3"></td>
+      </tr>
+      <tr>
+        <td>值日胎神</td>
+        <td id="i4"></td>
+      </tr>
+      <tr>
+        <td>当日值星</td>
+        <td id="j"></td>
+      </tr>
+      <tr>
+        <td>值日天神</td>
+        <td id="k"></td>
+      </tr>
+      <tr>
+        <td>空亡所值</td>
+        <td id="xun"></td>
+      </tr>
+      <tr>
+        <td>值日九星</td>
+        <td id="jiuxing"></td>
+      </tr>
+      <tr>
+        <td>日星歌诀</td>
+        <td id="jiuxing-song"></td>
+      </tr>
+      <tr>
+        <td>值月九星</td>
+        <td id="jiuxingm"></td>
+      </tr>
+      <tr>
+        <td>月星歌诀</td>
+        <td id="jiuxing-songm"></td>
+      </tr>   
+      <tr>
+        <td>值年九星</td>
+        <td id="jiuxingy"></td>
+      </tr>
+      <tr>
+        <td>年星歌诀</td>
+        <td id="jiuxing-songy"></td>
+      </tr>
+      <tr>
+        <td>上一节气</td>
+        <td id="p"></td>
+      </tr>
+      <tr>
+        <td>下一节气</td>
+        <td id="n"></td>
+      </tr>
+      <tr>
+        <td>节日</td>
+        <td id="x"></td>
+      </tr>
+      <tr>
+        <td>纪念日</td>
+        <td id="y"></td>
+      </tr>
+      <tr>
+        <td>数九</td>
+        <td id="shuJiu"></td>
+      </tr>
+      <tr>
+        <td>三伏</td>
+        <td id="fu"></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div id="times"></div>
+</div>
+
+<div style="color:#999;">说明：双手指缩放屏幕，调整字体大小；左右滑动屏幕查看各个时辰内容。</div>
+
+</div>
+<script src="jquery.min.js"></script>
+<script src="highlight.min.js"></script>
+<script src="marked.min.js"></script>
+<script src="common.js"></script>
+<script src="lunar.js"></script>
+<script>
+mdr('.md');
+</script>
+<script>
+(function(){
+  var today = Solar.fromDate(new Date());
+  $('#year').val(today.getYear());
+  $('#month').val(today.getMonth());
+  $('#day').val(today.getDay());
+  
+  var throttle = function(fn,delay,atleast){
+    var timer = null;
+    var previous = null;
+    return function(){
+      var now = +new Date();
+      if(!previous) previous = now;
+      if(atleast && now - previous > atleast){
+        fn();
+        previous = now;
+        clearTimeout(timer);
+      } else {
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+          fn();
+          previous = null;
+        }, delay);
+      }
+    }
+  };
+  
+  var onChange = throttle(function(){
+    compute();
+  },20,50);
+  
+  // 生成时辰表
+  var renderTime = function(year,month,day){
+    var l = [];
+    // 00:00:00作为早子时
+    l.push(Solar.fromYmdHms(year,month,day,0,0,0).getLunar());
+    // 从01:00:00、03:00:00直到23:00:00(晚子时)遍历12个时辰
+    for(var i=0;i<12;i++){
+      l.push(Solar.fromYmdHms(year,month,day,(i+1)*2-1,0,0).getLunar());
+    }
+    var s = '<table><tbody>';
+    
+    s += '<tr><td width="9%">时辰</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td width="7%">'+l[i].getTimeInGanZhi()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时刻</td><td>0:00-0:59</td>';
+    for(var i=0;i<12;i++){
+      s += '<td>'+((i+1)*2-1)+':00-'+((i+1)*2-(i<11?0:1))+':59'+'</td>';
+    }
+    s += '</tr>';
+
+    s += '<tr><td>五行</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+LunarUtil.WU_XING_GAN[l[i].getTimeGan()]+LunarUtil.WU_XING_ZHI[l[i].getTimeZhi()]+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>纳音</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeNaYin()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>值时天神</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeTianShen()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>黑道黄道</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeTianShenType()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰吉凶</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeTianShenLuck()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰相冲</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeChongDesc()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰相煞</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeSha()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰所宜</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeYi().join(' ')+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰所忌</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeJi().join(' ')+'</td>';
+    }
+    s += '</tr>';
+
+    s += '<tr><td>时辰财位</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimePositionCaiDesc()+l[i].getTimePositionCai()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>时辰福位</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimePositionFuDesc()+l[i].getTimePositionFu()+'</td>';
+    }
+    s += '</tr>';    
+
+    s += '<tr><td>阳贵神位</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimePositionYangGuiDesc()+l[i].getTimePositionYangGui()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>阴贵神位</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimePositionYinGuiDesc()+l[i].getTimePositionYinGui()+'</td>';
+    }
+    s += '</tr>';    
+
+    s += '<tr><td>时辰喜位</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimePositionXiDesc()+l[i].getTimePositionXi()+'</td>';
+    }
+    s += '</tr>';  
+    
+    s += '</tbody></table>';
+    $('#times').html(s);
+  };
+
+  var compute = function(){
+    try{
+      var year = $('#year').val();
+      var month = $('#month').val();
+      var day = $('#day').val();
+      if(year.length!=4){
+        return;
+      }
+      if(year<1901||year>2099){
+        return;
+      }
+      if(month<1||month>12){
+        return;
+      }
+      if(day<1||day>31){
+        return;
+      }
+      year = parseInt(year,10);
+      month = parseInt(month,10);
+      day = parseInt(day,10);
+      var s = Solar.fromYmd(year,month,day);
+      var d = s.getLunar();
+      $('#yuexiang').html(d.getYueXiang()+' (天文学中对于地球上看到的月球被太阳照亮部分的称呼，即月球位相变化)');
+      $('#a').html(d.getYearInGanZhi()+'年 属'+d.getYearShengXiao()+' '+d.getYearNaYin()+' '+LunarUtil.WU_XING_GAN[d.getYearGan()]+LunarUtil.WU_XING_ZHI[d.getYearZhi()]);
+      $('#a1').html(d.getMonthInGanZhi()+'月 属'+d.getMonthShengXiao()+' '+d.getMonthNaYin()+' '+LunarUtil.WU_XING_GAN[d.getMonthGan()]+LunarUtil.WU_XING_ZHI[d.getMonthZhi()]);
+      $('#a2').html(d.getDayInGanZhi()+'日 属'+d.getDayShengXiao()+' '+d.getDayNaYin()+' '+LunarUtil.WU_XING_GAN[d.getDayGan()]+LunarUtil.WU_XING_ZHI[d.getDayZhi()]);
+      $('#a3').html(s.getJulianDay()+'(天文学中由公元前4713年1月1日，协调世界时中午12时开始所经过的天数)');
+      $('#b').html(d.getYearInChinese()+'年 '+d.getMonthInChinese()+'月 '+d.getDayInChinese()+' (阴历)');
+      $('#c').html(s.getYear()+'年 '+s.getMonth()+'月 '+s.getDay()+'日 星期'+s.getWeekInChinese()+' '+s.getXingZuo()+'座 (阳历)');
+      $('#m').html(d.getSeason());
+      $('#d').html(d.getPengZuGan()+'；'+d.getPengZuZhi()+'(道家先驱养生诗)');
+      $('#yj').html('<span style="color:green">宜</span>：'+d.getDayYi().join(' ')+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red">忌</span>：'+d.getDayJi().join(' '));
+      $('#e').html('('+d.getDayInGanZhi()+')'+d.getDayShengXiao()+'日 冲'+d.getChongDesc());
+      $('#js').html(d.getDayJiShen().join(' ')+'(<span style="color:green">宜趋</span>)');
+      $('#xs').html(d.getDayXiongSha().join(' ')+'(<span style="color:red">宜避</span>)');
+      $('#f').html(d.getSha());
+      $('#fd').html(d.getDaySha()+'方(凶)'+'(<span style="color:red">宜避</span>，所值之处忌穿墙凿井、搬迁移徙、修建营造)');      
+      $('#g').html(d.getGong()+'方'+d.getXiu()+'(二十八宿)'+d.getZheng()+'(七政)'+d.getAnimal()+'(28种动物)'+' ('+d.getXiuLuck()+')');
+      $('#g1').html(d.getXiuSong());
+      $('#h').html('阳贵神：'+d.getPositionYangGuiDesc()+d.getDayPositionYangGui()+' ；阴贵神：'+d.getPositionYinGuiDesc()+d.getDayPositionYinGui());
+      $('#i').html(d.getPositionXiDesc()+d.getDayPositionXi());
+      $('#i1').html(d.getPositionFuDesc()+d.getDayPositionFu());
+      $('#i2').html(d.getPositionCaiDesc()+d.getDayPositionCai());
+      $('#i3').html(d.getMonthPositionTai()+'(忌动土、移床、敲打及钻洞等等事情)');
+      $('#i4').html(d.getDayPositionTai()+'(忌动土、移床、敲打及钻洞等等事情)');
+      $('#x').html(d.getFestivals().join('、')+' '+s.getFestivals().join('、'));
+      $('#y').html(d.getOtherFestivals().join('、')+' '+s.getOtherFestivals().join('、'));
+      $('#j').html(d.getZhiXing()+'(十二值星，也称建除十二神，民俗信仰中的十二位神明，分别为建、除、满、平、定、执、破、危、成、收、开、闭，负责保护凡人平安)');
+      $('#k').html(d.getDayTianShen()+'('+d.getDayTianShenType()+') '+ d.getDayTianShenLuck()+ '(十二天神择日法，又名大黄道择日法；黄道主吉，黑道主凶)');
+      var p = d.getPrevJieQi(),n = d.getNextJieQi();
+      $('#p').html(p.getName()+' '+p.getSolar().toYmdHms()+' 星期'+p.getSolar().getWeekInChinese());
+      $('#n').html(n.getName()+' '+n.getSolar().toYmdHms()+' 星期'+n.getSolar().getWeekInChinese());
+      
+      var jiuxing = d.getDayNineStar();
+      var jiuxingy = d.getYearNineStar();
+      var jiuxingm = d.getMonthNineStar();      
+      $('#jiuxing').html(jiuxing.toFullString());
+      $('#jiuxingy').html(jiuxingy.toFullString());      
+      $('#jiuxingm').html(jiuxingm.toFullString());      
+      $('#jiuxing-song').html(jiuxing.getSongInTaiYi());
+      $('#jiuxing-songy').html(jiuxingy.getSongInTaiYi());
+      $('#jiuxing-songm').html(jiuxingm.getSongInTaiYi());      
+      $('#xun').html('年：'+d.getYearXunKong()+'&nbsp;&nbsp;&nbsp;月：'+d.getMonthXunKong()+'&nbsp;&nbsp;&nbsp;日：'+d.getDayXunKong());
+      
+      var shuJiu = d.getShuJiu();
+      $('#shuJiu').html(shuJiu ? shuJiu.toFullString() :+ '');
+      
+      var fu = d.getFu();
+      $('#fu').html(fu ? fu.toFullString() : '');
+      
+      // 物候
+      $('#wuhou').html(d.getWuHou()+'(根据黄河流域的地理、气候、和自然界的一些景象编写，反映一年中物候和气候变化的一般情况；以五日为候，三候为气，六气为时，四时为岁，一年 “二十四节气” 共七十二候)');
+      
+      // 六曜
+      $('#liuyao').html(d.getLiuYao()+'(包括先胜、友引、 先负、佛灭、大安和赤口；作为当天行事判定吉凶的参考)');
+      
+      renderTime(year,month,day);
+    }catch(e){
+      console.log(e);
+    }
+  };
+
+  compute();
+
+  $('#year').on('input propertychange',onChange);
+  $('#month').on('input propertychange',onChange);
+  $('#day').on('input propertychange',onChange);
+})();
+</script>
+</body>
+</html>
