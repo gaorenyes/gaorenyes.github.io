@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>简易传统数术程序</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="keywords" content="lunar,阳历,阴历,公历,农历" />
+<meta name="description" content="lunar是一个无依赖的支持阳历和阴历的日历工具库。" />
+<meta name="author" content="6tail" />
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="highlight.min.css">
+<link rel="stylesheet" href="markdown.css">
+<link rel="stylesheet" href="page.css">
+<style type="text/css">
+            body {font-family: "Microsoft Yahei","Helvetica Neue";}
+            a:link{text-decoration: none; color: dodgerblue;}
+            a:visited{text-decoration: none; color: dodgerblue; }
+            a:hover{text-decoration: none; color: Fuchsia; }
+        </style>
+</head>
+<center>
+<h2>
+<a href="https://gaoren.cf/" target="_blank" style="color: red;">简易传统数术程序首页</a>
+</h2>
+<br>
+<h3>
+<a rel="nofollow" target="__blank" href="https://b.gaoren.cf/">八字排盘</a> <a rel="nofollow" target="__blank" href="https://pp.gaoren.cf/b/">八字排盘备用</a><br>
+<a rel="nofollow" target="__blank" href="https://l.gaoren.cf/">老黄历</a> <a rel="nofollow" target="__blank" href="https://pp.gaoren.cf/lhl/">老黄历备用</a>
+<br>
+</h3>
+<br>
+</center>
+<style type="text/css">
+.huangli{
+  margin-bottom:20px;
+  margin-left:auto;margin-right:auto;
+  position:relative;
+  border:2px solid #000;
+  background:#fff;
+  width:380px;
+  color:#000;
+  font-size:14px;
+  zoom:1;
+  overflow:hidden;
+}
+.huangli i{
+  font-style:normal;
+  color:#999;
+}
+.huangli b{
+  font-weight:normal;
+}
+.huangli:before,.huangli:after{
+  content:'';
+  position:absolute;
+  left:90px;
+  font-size:0;
+}
+.huangli:before{
+  top:0;
+  width:0;
+  height:100%;
+  border-right:1px solid #BBB;
+}
+.huangli:after{
+  top:210px;
+  width:286px;
+  height:0;
+  border-bottom:1px solid #BBB;
+}
+#md{
+  position:absolute;
+  left:20px;
+  top:20px;
+  width:30px;
+  font-size:30px;
+  color:#000;
+}
+#ymd{
+  position:absolute;
+  left:60px;
+  top:0;
+  width:13px;
+  font-size:13px;
+}
+#ymd i{
+  display:block;
+  margin-top:10px;
+}
+.nayin,.chongsha,.pengzu{
+  position:absolute;
+  left:110px;
+}
+.nayin i,.chongsha i{
+  margin-left:20px;
+}
+.nayin{
+  top:20px;
+}
+.chongsha{
+  top:60px;
+}
+.pengzu{
+  top:100px;
+}
+.pengzu i{
+  position:absolute;
+  left:50px;
+  top:-1em;
+  width:120px;
+}
+
+.js,.xs{
+  position:absolute;
+  left:110px;
+}
+.js i,.xs i{
+  margin-left:20px;
+}
+.js{
+  top:135px;
+}
+.xs{
+  top:170px;
+}
+
+.xishen,.fushen,.caishen{
+  position:absolute;
+  top:230px;
+}
+.xishen{
+  left:110px;
+}
+.fushen{
+  left:205px;
+}
+.caishen{
+  left:300px;
+}
+.xishen i,.fushen i,.caishen i{
+  display:block;
+}
+.yiji{
+  margin-left:110px;
+  margin-top:290px;
+}
+.yiji.ji{
+  margin-top:20px;
+  margin-bottom:20px;
+}
+.yiji b{
+  padding:2px 4px;
+  color:#fff;
+  background:green;
+  -webkit-border-radius:50%;
+  -moz-border-radius:50%;
+  -ms-border-radius:50%;
+  -o-border-radius:50%;
+  border-radius:50%;
+}
+.yiji i{
+  line-height:1.5em;
+  margin-right:10px;
+}
+.yiji.ji b{
+  background:red
+}
+
+
+</style>
+
+<div class="huangli">
+<div id="md"></div>
+<div id="ymd"></div>
+<div class="nayin"><b>纳音</b><i id="nayin"></i></div>
+<div class="chongsha"><b>冲煞</b><i id="chongsha"></i></div>
+<div class="pengzu"><b>彭祖</b><i id="pengzu"></i></div>
+<div class="xishen"><b>喜神</b><i id="xishen"></i></div>
+<div class="fushen"><b>福神</b><i id="fushen"></i></div>
+<div class="caishen"><b>财神</b><i id="caishen"></i></div>
+<div class="yiji" id="yi">
+<b>宜</b>
+</div>
+<div class="yiji ji" id="ji">
+<b>忌</b>
+</div>
+<div class="js"><b>吉神</b><i id="js"></i></div>
+<div class="xs"><b>凶煞</b><i id="xs"></i></div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/marked/0.8.2/marked.min.js"></script>
+<script src="common.js"></script>
+<script src="lunar.js"></script>
+<script>
+mdr('.md');
+</script>
+<script>
+var d = Lunar.fromDate(new Date());
+$('#md').html('农历'+d.getMonthInChinese()+'月'+d.getDayInChinese());
+$('#ymd').html('<i>'+d.getYearGan()+d.getYearZhi()+d.getYearShengXiao()+'年</i><i>'+d.getMonthInGanZhi()+'月</i><i>'+d.getDayInGanZhi()+'日</i><i>星期'+d.getSolar().getWeekInChinese()+'</i>');
+$('#nayin').html(d.getDayNaYin());
+$('#chongsha').html('冲'+d.getChongDesc()+' 煞'+d.getSha());
+$('#pengzu').html(d.getPengZuGan()+' '+d.getPengZuZhi());
+$('#xishen').html(d.getPositionXiDesc());
+$('#fushen').html(d.getPositionFuDesc());
+$('#caishen').html(d.getPositionCaiDesc());
+$('#js').html(d.getDayJiShen().join(' '));
+$('#xs').html(d.getDayXiongSha().join(' '));
+var yi = d.getDayYi();
+for(var i=0,j=yi.length;i<j;i++){
+  $('#yi').append('<i>'+yi[i]+'</i>');
+}
+var ji = d.getDayJi();
+for(var i=0,j=ji.length;i<j;i++){
+  $('#ji').append('<i>'+ji[i]+'</i>');
+}
+</script>
+
+</body>
+</html>
