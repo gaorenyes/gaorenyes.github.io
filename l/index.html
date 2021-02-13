@@ -119,12 +119,12 @@
         <td id="yuexiang"></td>
       </tr>
       <tr>
-        <td>七十二候</td>
-        <td id="wuhou"></td>
-      </tr>
-      <tr>
         <td>六曜</td>
         <td id="liuyao"></td>
+      </tr>      
+      <tr>
+        <td>七十二候</td>
+        <td id="wuhou"></td>
       </tr>
       <tr>
         <td>彭祖百忌</td>
@@ -272,7 +272,33 @@ mdr('.md');
       l.push(Solar.fromYmdHms(year,month,day,(i+1)*2-1,0,0).getLunar());
     }
     var s = '<table><tbody>';
-    
+      var YinYang = {
+      '甲':'阳',
+      '丙':'阳',
+      '戊':'阳',
+      '庚':'阳',
+      '壬':'阳',
+      
+      '子':'阳',
+      '寅':'阳',
+      '辰':'阳',
+      '午':'阳',
+      '申':'阳',
+      '戌':'阳',
+      
+      '乙':'阴',
+      '丁':'阴',
+      '己':'阴',
+      '辛':'阴',
+      '癸':'阴',
+      
+      '丑':'阴',
+      '卯':'阴',
+      '巳':'阴',
+      '未':'阴',
+      '酉':'阴',
+      '亥':'阴'
+    };     
     s += '<tr><td width="9%">时辰</td>';
     for(var i=0,j=l.length;i<j;i++){
       s += '<td width="7%">'+l[i].getTimeInGanZhi()+'</td>';
@@ -291,6 +317,12 @@ mdr('.md');
     }
     s += '</tr>';
     
+    s += '<tr><td>阴阳</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+YinYang[l[i].getTimeGan()]+YinYang[l[i].getTimeZhi()]+'</td>';
+    }
+    s += '</tr>';
+    
     s += '<tr><td>五行</td>';
     for(var i=0,j=l.length;i<j;i++){
       s += '<td>'+LunarUtil.WU_XING_GAN[l[i].getTimeGan()]+LunarUtil.WU_XING_ZHI[l[i].getTimeZhi()]+'</td>';
@@ -300,6 +332,18 @@ mdr('.md');
     s += '<tr><td>纳音</td>';
     for(var i=0,j=l.length;i<j;i++){
       s += '<td>'+l[i].getTimeNaYin()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>相冲</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeChongDesc()+'</td>';
+    }
+    s += '</tr>';
+    
+    s += '<tr><td>相煞</td>';
+    for(var i=0,j=l.length;i<j;i++){
+      s += '<td>'+l[i].getTimeSha()+'</td>';
     }
     s += '</tr>';
     
@@ -320,19 +364,7 @@ mdr('.md');
       s += '<td>'+l[i].getTimeTianShenLuck()+'</td>';
     }
     s += '</tr>';
-    
-    s += '<tr><td>相冲</td>';
-    for(var i=0,j=l.length;i<j;i++){
-      s += '<td>'+l[i].getTimeChongDesc()+'</td>';
-    }
-    s += '</tr>';
-    
-    s += '<tr><td>相煞</td>';
-    for(var i=0,j=l.length;i<j;i++){
-      s += '<td>'+l[i].getTimeSha()+'</td>';
-    }
-    s += '</tr>';
-    
+
     s += '<tr><td>所宜</td>';
     for(var i=0,j=l.length;i<j;i++){
       s += '<td>'+l[i].getTimeYi().join(' ')+'</td>';
@@ -407,10 +439,37 @@ mdr('.md');
       day = parseInt(day,10);
       var s = Solar.fromYmd(year,month,day);
       var d = s.getLunar();
+      var YinYang = {
+      '甲':'阳',
+      '丙':'阳',
+      '戊':'阳',
+      '庚':'阳',
+      '壬':'阳',
+      
+      '子':'阳',
+      '寅':'阳',
+      '辰':'阳',
+      '午':'阳',
+      '申':'阳',
+      '戌':'阳',
+      
+      '乙':'阴',
+      '丁':'阴',
+      '己':'阴',
+      '辛':'阴',
+      '癸':'阴',
+      
+      '丑':'阴',
+      '卯':'阴',
+      '巳':'阴',
+      '未':'阴',
+      '酉':'阴',
+      '亥':'阴'
+    };      
       $('#yuexiang').html(d.getYueXiang()+' (天文学中对于地球上看到的月球被太阳照亮部分的称呼，即月球位相变化)');
-      $('#a').html(d.getYearInGanZhi()+'年 属'+d.getYearShengXiao()+' '+d.getYearNaYin()+' '+LunarUtil.WU_XING_GAN[d.getYearGan()]+LunarUtil.WU_XING_ZHI[d.getYearZhi()]);
-      $('#a1').html(d.getMonthInGanZhi()+'月 属'+d.getMonthShengXiao()+' '+d.getMonthNaYin()+' '+LunarUtil.WU_XING_GAN[d.getMonthGan()]+LunarUtil.WU_XING_ZHI[d.getMonthZhi()]);
-      $('#a2').html(d.getDayInGanZhi()+'日 属'+d.getDayShengXiao()+' '+d.getDayNaYin()+' '+LunarUtil.WU_XING_GAN[d.getDayGan()]+LunarUtil.WU_XING_ZHI[d.getDayZhi()]);
+      $('#a').html(d.getYearInGanZhi()+'年 '+d.getYearShengXiao()+' '+d.getYearNaYin()+' '+LunarUtil.WU_XING_GAN[d.getYearGan()]+LunarUtil.WU_XING_ZHI[d.getYearZhi()]+' '+ YinYang[d.getYearGan()] + YinYang[d.getYearZhi()]);
+      $('#a1').html(d.getMonthInGanZhi()+'月 '+d.getMonthShengXiao()+' '+d.getMonthNaYin()+' '+LunarUtil.WU_XING_GAN[d.getMonthGan()]+LunarUtil.WU_XING_ZHI[d.getMonthZhi()]+' '+ YinYang[d.getMonthGan()] + YinYang[d.getMonthZhi()]);
+      $('#a2').html(d.getDayInGanZhi()+'日 '+d.getDayShengXiao()+' '+d.getDayNaYin()+' '+LunarUtil.WU_XING_GAN[d.getDayGan()]+LunarUtil.WU_XING_ZHI[d.getDayZhi()]+' '+ YinYang[d.getDayGan()] + YinYang[d.getDayZhi()]);
       $('#a3').html(s.getJulianDay()+'(天文学中由公元前4713年1月1日，协调世界时中午12时开始所经过的天数)');
       $('#b').html(d.getYearInChinese()+'年 '+d.getMonthInChinese()+'月 '+d.getDayInChinese());
       $('#c').html(s.getYear()+'年 '+s.getMonth()+'月 '+s.getDay()+'日 星期'+s.getWeekInChinese()+'   '+ s.getXingZuo() +'座');
