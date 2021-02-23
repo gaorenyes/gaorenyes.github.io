@@ -1170,38 +1170,38 @@
       }
     }
 
-      if(currentYun){
-        if(currentYun.daYunGanZhi){
-          shenShaTemp = {};
-          for(var i in shenShaYearZhidaYunliuNianZhi){
-            var gzs = shenShaYearZhidaYunliuNianZhi[i];
-            for(var j=0,k=gzs.length;j<k;j++){
-              var gz = gzs[j];
-              if(gz == bazi.getYearZhi()+currentYun.daYunGanZhi.substr(1)){
-                shenShaTemp[i] = true;
-              }
+    if(currentYun){
+      if(currentYun.daYunGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaYearZhidaYunliuNianZhi){
+          var gzs = shenShaYearZhidaYunliuNianZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getYearZhi()+currentYun.daYunGanZhi.substr(1)){
+              shenShaTemp[i] = true;
             }
           }
-          for(var i in shenShaTemp){
-            shenShadaYun.push(i);
+        }
+        for(var i in shenShaTemp){
+          shenShadaYun.push(i);
         }
       }
     }
       
-      if(currentYun){
-        if(currentYun.daYunGanZhi){
-          shenShaTemp = {};
-          for(var i in shenShaYearZhiDayZhidaYunliuNianZhi){
-            var gzs = shenShaYearZhiDayZhidaYunliuNianZhi[i];
-            for(var j=0,k=gzs.length;j<k;j++){
-              var gz = gzs[j];
-              if(gz == bazi.getYearZhi()+currentYun.daYunGanZhi.substr(1) || gz == bazi.getDayZhi()+currentYun.daYunGanZhi.substr(1)){
-                shenShaTemp[i] = true;
-              }
+    if(currentYun){
+      if(currentYun.daYunGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaYearZhiDayZhidaYunliuNianZhi){
+          var gzs = shenShaYearZhiDayZhidaYunliuNianZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getYearZhi()+currentYun.daYunGanZhi.substr(1) || gz == bazi.getDayZhi()+currentYun.daYunGanZhi.substr(1)){
+              shenShaTemp[i] = true;
             }
           }
-          for(var i in shenShaTemp){
-            shenShadaYun.push(i);
+        }
+        for(var i in shenShaTemp){
+          shenShadaYun.push(i);
         }
       }
     }    
@@ -1647,8 +1647,9 @@
     for(var i in gxs){
      matched.push(i);
     }
-    s += '<td colspan="10" class="left small">'+(matched.join(' '))+'</td>';
-
+    s += '<td colspan="10" class="left small">'+(matched.length<1 ? '天干无冲合' : matched.join(' '))+'</td>';;
+    s += '</tr>'; 
+    
     s += '<tr>';
     s += '<td>地支：</td>';
     var dzguanxi = {
@@ -1773,19 +1774,20 @@
 	'申申':'值太岁',
 	'戌戌':'值太岁',	
 	'子卯':'刑太岁',
+	'丑戌':'刑太岁(丑戌未三刑)',	
 	'辰辰':'刑太岁(值)',
 	'午午':'刑太岁(值)',
 	'酉酉':'刑太岁(值)',
 	'亥亥':'刑太岁(值)',
 	'子午':'冲太岁',
 	'卯酉':'冲太岁',
-	'寅申':'冲太岁',
+	'寅申':'冲太岁(寅巳申三刑)',
 	'巳亥':'冲太岁',
 	'辰戌':'冲太岁',
-	'丑未':'冲太岁',
+	'丑未':'冲太岁(丑戌未三刑)',
 	'子未':'害太岁',
 	'丑午':'害太岁',
-	'寅巳':'害太岁',
+	'寅巳':'害太岁(寅巳申三刑)',
 	'卯辰':'害太岁',
 	'申亥':'害太岁',
 	'酉戌':'害太岁',
@@ -1793,8 +1795,8 @@
 	'卯午':'破太岁',
 	'辰丑':'破太岁',
 	'寅亥':'破太岁',	
-	'巳申':'破太岁',
-	'未戌':'破太岁'	
+	'巳申':'破太岁(寅巳申三刑)',
+	'未戌':'破太岁(丑戌未三刑)'	
     };
     var zhis = [];
     zhis.push(bazi.getYearZhi());
@@ -1821,7 +1823,7 @@
     for(var i in gxs){
      matched.push(i);
     }
-    s += '<td colspan="10" class="left small">'+(matched.join(' '))+'</td>';
+    s += '<td colspan="10" class="left small">'+(matched.length<1 ? '未犯太岁' : matched.join(' '))+'</td>';
     s += '</tr>';
 
     s += '<tr>';
