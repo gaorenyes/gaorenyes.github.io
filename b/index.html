@@ -1874,22 +1874,22 @@
 		}    
  
     s += '<td>年柱：</td>';
-    s += '<td colspan="10" class="left small">'+ shenShaYear.join(' ') +'</td>';
+    s += '<td colspan="10" class="left small">'+ (shenShaYear.length<1 ? '无吉神凶煞' : shenShaYear.join(' ')) +'</td>';
     s += '</tr>'; 
     
     s += '<tr>';
     s += '<td>月柱：</td>';
-    s += '<td colspan="10" class="left small">'+ shenShaMonth.join(' ') +'</td>';
+    s += '<td colspan="10" class="left small">'+ (shenShaMonth.length<1 ? '无吉神凶煞' : shenShaMonth.join(' ')) +'</td>';
     s += '</tr>';
 
     s += '<tr>';
     s += '<td>日柱：</td>';
-    s += '<td colspan="10" class="left small">'+ shenShaDay.join(' ') +'</td>';	
+    s += '<td colspan="10" class="left small">'+ (shenShaDay.length<1 ? '无吉神凶煞' : shenShaDay.join(' ')) +'</td>';	
     s += '</tr>';    
 
     s += '<tr>';
     s += '<td>时柱：</td>';
-    s += '<td colspan="10" class="left small">'+ shenShaTime.join(' ') +'</td>';		
+    s += '<td colspan="10" class="left small">'+ (shenShaTime.length<1 ? '无吉神凶煞' : shenShaTime.join(' ')) +'</td>';		
     s += '</tr>';  
 
     s += '<tr>';
