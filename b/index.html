@@ -365,47 +365,18 @@
       s += '<td colspan="6"></td>';
     }
     s += '</tr>';
-    
-    var YinYang = {
-      '甲':'阳',
-      '丙':'阳',
-      '戊':'阳',
-      '庚':'阳',
-      '壬':'阳',
-      
-      '子':'阳',
-      '寅':'阳',
-      '辰':'阳',
-      '午':'阳',
-      '申':'阳',
-      '戌':'阳',
-      
-      '乙':'阴',
-      '丁':'阴',
-      '己':'阴',
-      '辛':'阴',
-      '癸':'阴',
-      
-      '丑':'阴',
-      '卯':'阴',
-      '巳':'阴',
-      '未':'阴',
-      '酉':'阴',
-      '亥':'阴'
-    };
-
-    
+     
     s += '<tr>';
-    s += '<td>阴阳：</td>';
-    s += '<td class="small">' + YinYang[bazi.getYearGan()] + YinYang[bazi.getYearZhi()] + '</td>';
-    s += '<td class="small">' + YinYang[bazi.getMonthGan()] + YinYang[bazi.getMonthZhi()] + '</td>';
-    s += '<td class="small">' + YinYang[bazi.getDayGan()] + YinYang[bazi.getDayZhi()] + '</td>';
-    s += '<td class="small">' + YinYang[bazi.getTimeGan()] + YinYang[bazi.getTimeZhi()] + '</td>';
+    s += '<td>纳音：</td>';
+    s += '<td class="small">' + bazi.getYearNaYin() + '</td>';
+    s += '<td class="small">' + bazi.getMonthNaYin() + '</td>';
+    s += '<td class="small">' + bazi.getDayNaYin() + '</td>';
+    s += '<td class="small">' + bazi.getTimeNaYin() + '</td>';
     if(currentYun){
       s += '<td></td>';
-      s += '<td class="small">' + (currentYun.daYunGan ? YinYang[currentYun.daYunGan]:'') + (currentYun.daYunZhi ? YinYang[currentYun.daYunZhi]:'') + '</td>';
-      s += '<td class="small">' + (currentYun.liuNianGan ? YinYang[currentYun.liuNianGan]:'') + (currentYun.liuNianZhi ? YinYang[currentYun.liuNianZhi]:'') + '</td>';
-      s += '<td class="small">' + (currentYun.liuYueGan ? YinYang[currentYun.liuYueGan]:'') + (currentYun.liuYueZhi ? YinYang[currentYun.liuYueZhi]:'') + '</td>';
+      s += '<td class="small">'+currentYun.daYunNaYin+'</td>';
+      s += '<td class="small">'+currentYun.liuNianNaYin+'</td>';
+      s += '<td class="small">'+currentYun.liuYueNaYin+'</td>';
       s += '<td colspan="2"></td>';
     }else{
       s += '<td colspan="6"></td>';
@@ -413,40 +384,20 @@
     s += '</tr>';
 
     s += '<tr>';
-    s += '<td>五行：</td>';
-    s += '<td class="small">' + bazi.getYearWuXing() + '</td>';
-    s += '<td class="small">' + bazi.getMonthWuXing() + '</td>';
-    s += '<td class="small">' + bazi.getDayWuXing() + '</td>';
-    s += '<td class="small">' + bazi.getTimeWuXing() + '</td>';
+    s += '<td>空亡：</td>';
+    s += '<td class="small">' + bazi.getYearXunKong() + '</td>';
+    s += '<td class="small">' + bazi.getMonthXunKong() + '</td>';
+    s += '<td class= "red small">' + bazi.getDayXunKong() + '</td>';
+    s += '<td class="small">' + bazi.getTimeXunKong() + '</td>';
     if(currentYun){
       s += '<td></td>';
-      s += '<td class="small">'+currentYun.daYunWuXing+'</td>';
-      s += '<td class="small">'+currentYun.liuNianWuXing+'</td>';
-      s += '<td class="small">'+currentYun.liuYueWuXing+'</td>';
+      s += '<td class="small">'+currentYun.daYunXunKong+'</td>';
+      s += '<td class="small">'+currentYun.liuNianXunKong+'</td>';
+      s += '<td class="small">'+currentYun.liuYueXunKong+'</td>';
       s += '<td colspan="2"></td>';
     }else{
       s += '<td colspan="6"></td>';
     }
-    s += '</tr>';
-    
-    s += '<tr>';
-    s += '<td>旺衰：</td>';
-    var wxguanxi = {
-	'寅卯':'木旺 火相 水休 金囚 土死',
-	'巳午':'火旺 土相 木休 水囚 金死',
-	'申酉':'金旺 水相 土休 火囚 木死',
-	'亥子':'水旺 木相 金休 土囚 火死',
-	'辰戌丑未':'土旺 金相 火休 木囚 水死'
-    };
-    var monthZhi = bazi.getMonthZhi();
-    var wx = '';
-    for(var i in wxguanxi){
-        if(i.indexOf(monthZhi )>-1){
-            wx = wxguanxi[i];
-            break;
-        }
-    }
-    s += '<td colspan="10" class="left small">' + bazi.getDayGan() + LunarUtil.WU_XING_GAN[bazi.getDayGan()] + '生于' + bazi.getMonthZhi() + '月 ' + wx +'</td>';
     s += '</tr>';
 
     s += '<tr>';
@@ -482,40 +433,89 @@
       s += '<td colspan="6"></td>';
     }
     s += '</tr>';
-
-    s += '<tr>';
-    s += '<td>空亡：</td>';
-    s += '<td class="small">' + bazi.getYearXunKong() + '</td>';
-    s += '<td class="small">' + bazi.getMonthXunKong() + '</td>';
-    s += '<td class= "red small">' + bazi.getDayXunKong() + '</td>';
-    s += '<td class="small">' + bazi.getTimeXunKong() + '</td>';
-    if(currentYun){
-      s += '<td></td>';
-      s += '<td class="small">'+currentYun.daYunXunKong+'</td>';
-      s += '<td class="small">'+currentYun.liuNianXunKong+'</td>';
-      s += '<td class="small">'+currentYun.liuYueXunKong+'</td>';
-      s += '<td colspan="2"></td>';
-    }else{
-      s += '<td colspan="6"></td>';
-    }
-    s += '</tr>';
+ 	
+    var YinYang = {
+      '甲':'阳',
+      '丙':'阳',
+      '戊':'阳',
+      '庚':'阳',
+      '壬':'阳',
+      
+      '子':'阳',
+      '寅':'阳',
+      '辰':'阳',
+      '午':'阳',
+      '申':'阳',
+      '戌':'阳',
+      
+      '乙':'阴',
+      '丁':'阴',
+      '己':'阴',
+      '辛':'阴',
+      '癸':'阴',
+      
+      '丑':'阴',
+      '卯':'阴',
+      '巳':'阴',
+      '未':'阴',
+      '酉':'阴',
+      '亥':'阴'
+    };
     
     s += '<tr>';
-    s += '<td>纳音：</td>';
-    s += '<td class="small">' + bazi.getYearNaYin() + '</td>';
-    s += '<td class="small">' + bazi.getMonthNaYin() + '</td>';
-    s += '<td class="small">' + bazi.getDayNaYin() + '</td>';
-    s += '<td class="small">' + bazi.getTimeNaYin() + '</td>';
+    s += '<td>阴阳：</td>';
+    s += '<td class="small">' + YinYang[bazi.getYearGan()] + YinYang[bazi.getYearZhi()] + '</td>';
+    s += '<td class="small">' + YinYang[bazi.getMonthGan()] + YinYang[bazi.getMonthZhi()] + '</td>';
+    s += '<td class="small">' + YinYang[bazi.getDayGan()] + YinYang[bazi.getDayZhi()] + '</td>';
+    s += '<td class="small">' + YinYang[bazi.getTimeGan()] + YinYang[bazi.getTimeZhi()] + '</td>';
     if(currentYun){
       s += '<td></td>';
-      s += '<td class="small">'+currentYun.daYunNaYin+'</td>';
-      s += '<td class="small">'+currentYun.liuNianNaYin+'</td>';
-      s += '<td class="small">'+currentYun.liuYueNaYin+'</td>';
+      s += '<td class="small">' + (currentYun.daYunGan ? YinYang[currentYun.daYunGan]:'') + (currentYun.daYunZhi ? YinYang[currentYun.daYunZhi]:'') + '</td>';
+      s += '<td class="small">' + (currentYun.liuNianGan ? YinYang[currentYun.liuNianGan]:'') + (currentYun.liuNianZhi ? YinYang[currentYun.liuNianZhi]:'') + '</td>';
+      s += '<td class="small">' + (currentYun.liuYueGan ? YinYang[currentYun.liuYueGan]:'') + (currentYun.liuYueZhi ? YinYang[currentYun.liuYueZhi]:'') + '</td>';
       s += '<td colspan="2"></td>';
     }else{
       s += '<td colspan="6"></td>';
     }
     s += '</tr>';
+
+    s += '<tr>';
+    s += '<td>五行：</td>';
+    s += '<td class="small">' + bazi.getYearWuXing() + '</td>';
+    s += '<td class="small">' + bazi.getMonthWuXing() + '</td>';
+    s += '<td class="small">' + bazi.getDayWuXing() + '</td>';
+    s += '<td class="small">' + bazi.getTimeWuXing() + '</td>';
+    if(currentYun){
+      s += '<td></td>';
+      s += '<td class="small">'+currentYun.daYunWuXing+'</td>';
+      s += '<td class="small">'+currentYun.liuNianWuXing+'</td>';
+      s += '<td class="small">'+currentYun.liuYueWuXing+'</td>';
+      s += '<td colspan="2"></td>';
+    }else{
+      s += '<td colspan="6"></td>';
+    }
+    s += '</tr>';
+   
+    s += '<tr>';
+    s += '<td>旺衰：</td>';
+    var wxguanxi = {
+	'寅卯':'木旺 火相 水休 金囚 土死',
+	'巳午':'火旺 土相 木休 水囚 金死',
+	'申酉':'金旺 水相 土休 火囚 木死',
+	'亥子':'水旺 木相 金休 土囚 火死',
+	'辰戌丑未':'土旺 金相 火休 木囚 水死'
+    };
+    var monthZhi = bazi.getMonthZhi();
+    var wx = '';
+    for(var i in wxguanxi){
+        if(i.indexOf(monthZhi )>-1){
+            wx = wxguanxi[i];
+            break;
+        }
+    }
+    s += '<td colspan="10" class="left small">' + bazi.getDayGan() + LunarUtil.WU_XING_GAN[bazi.getDayGan()] + '生于' + bazi.getMonthZhi() + '月 ' + wx +'</td>';
+    s += '</tr>';
+
     
     s += '<tr>';
     
@@ -539,6 +539,11 @@
       '天上三奇' :['甲戊庚', '庚戊甲'],
       '地上三奇' :['乙丙丁', '丁丙乙'],	  
       '人中三奇' :['壬癸辛', '辛癸壬']	 
+    };
+    
+    //四柱地支顺序同时出现
+    var shenShaZhiZhi = {     
+      '三台' :['寅辰申', '卯巳午', '亥子酉'] 
     };
    
     // 年日天干查地支
@@ -576,9 +581,15 @@
       '华盖' : ['子辰', '丑丑', '寅戌', '卯未', '辰辰', '巳丑', '午戌', '未未', '申辰', '酉丑', '戌戌', '亥未'],
       '将星' : ['子子', '丑酉', '寅午', '卯卯', '辰子', '巳酉', '午午', '未卯', '申子', '酉酉', '戌午', '亥卯'],
       '天罗' : ['戌亥', '亥戌'],
-      '地网' : ['辰巳', '巳辰']      
+      '地网' : ['辰巳', '巳辰']
     };
 
+    //天罗地网(年柱纳音查地支)
+    var shenShaYearNaYinYearDiZhi = {     
+      '天罗' : ['霹雳火戌', '山下火戌', '覆灯火戌', '炉中火戌', '山头火戌', '天上火戌', '霹雳火亥', '山下火亥', '覆灯火亥', '炉中火亥', '山头火亥', '天上火亥'],
+      '地网' : ['涧下水辰', '泉中水辰', '长流水辰', '天河水辰', '大溪水辰', '大海水辰', '涧下水巳', '泉中水巳', '长流水巳', '天河水巳', '大溪水巳', '大海水巳', '壁上土辰', '大驿土辰', '沙中土辰', '路旁土辰', '城头土辰', '屋上土辰', '壁上土巳', '大驿土巳', '沙中土巳', '路旁土巳', '城头土巳', '屋上土巳']
+    };
+ 	
     // 年支查大运流年地支
     var shenShaYearZhidaYunliuNianZhi = {
       '丧门' : ['子寅', '丑卯', '寅辰', '卯巳', '辰午', '巳未', '午申', '未酉', '申戌', '酉亥', '戌子', '亥丑'],
@@ -615,6 +626,8 @@
       '天德 月德 德秀(德)' : ['未甲'],
       '天德 月德 德秀' : ['丑庚'],	  
       '阴注阳受' : ['寅子', '卯亥', '辰戌', '巳酉', '午戌', '未亥', '申子', '酉丑', '戌寅', '亥卯', '子寅', '丑丑'],
+      '五鬼' : ['寅午', '卯未', '辰申', '巳酉', '午戌', '未亥', '申子', '酉丑', '戌寅', '亥卯', '子辰', '丑巳'],
+      '月破' : ['寅申', '卯酉', '辰戌', '巳亥', '午子', '未丑', '申寅', '酉卯', '戌辰', '亥巳', '子午', '丑未'],	  
       '天医' : ['寅丑', '卯寅', '辰卯', '巳辰', '午巳', '未午', '申未', '酉申', '戌酉', '亥戌', '子亥', '丑子']
     };
      
@@ -632,20 +645,38 @@
     
      //只查日干支
     var shenShaDayDayGanZhi = {    
-       '阴差阳错' : ['丙子', '丁丑', '戊寅', '辛卯', '壬辰', '癸巳', '丙午', '丁未', '戊申', '辛酉', '壬戌', '癸亥'], 
+       '阴阳差错' : ['丙子', '丁丑', '戊寅', '辛卯', '壬辰', '癸巳', '丙午', '丁未', '戊申', '辛酉', '壬戌', '癸亥'],
        '十恶大败' : ['甲辰', '乙巳', '丙申', '丁亥', '戊戌', '己丑', '庚辰', '辛巳', '壬申', '癸亥'],
+       '六秀日' : ['丙午', '丁未', '戊子', '戊午', '己丑', '己未'],
+       '日德' : ['甲寅', '丙辰', '戊辰', '庚辰', '壬戌'],
+       '日贵' : ['丁酉', '丁亥', '癸卯', '癸巳'],
+       '进神' : ['甲子', '甲午', '己卯', '己酉'],
+       '退神' : ['丁丑', '丁未', '壬辰', '壬戌'],	   
        '魁罡' : ['壬辰', '庚辰', '庚戌', '戊戌']
     };
     
     //日干查地支    
     var shenShaDayGanDiZhi = { 
-      '羊刃' : ['甲卯', '乙寅', '丙午', '丁巳', '戊午', '己巳', '庚酉', '辛申', '壬子', '癸亥'],
+      '羊刃(帝旺)' : ['甲卯', '乙寅', '丙午', '丁巳', '戊午', '己巳', '庚酉', '辛申', '壬子', '癸亥'],
+      '飞刃' : ['甲酉', '乙申', '丙子', '丁亥', '戊子', '己亥', '庚卯', '辛寅', '壬午', '癸巳'],	  
       '天厨' : ['甲巳', '乙午', '丙巳', '丁午', '戊申', '己酉', '庚亥', '辛子', '壬寅', '癸卯'],
       '天官' : ['甲未', '乙辰', '丙巳', '丁酉', '戊戌', '己卯', '庚丑', '辛申', '壬寅', '癸午'],	  
       '红艳' : ['甲午', '乙申', '丙寅', '丁未', '戊辰', '己辰', '庚戌', '辛酉', '壬子', '癸申'],
-      '流霞' : ['甲酉', '乙戌', '丙未', '丁申', '戊巳', '己午', '庚辰', '辛卯', '壬亥', '癸寅']
+      '流霞' : ['甲酉', '乙戌', '丙未', '丁申', '戊巳', '己午', '庚辰', '辛卯', '壬亥', '癸寅'],
+      '沐浴' : ['甲子', '乙巳', '丙卯', '丁申', '戊卯', '己申', '庚午', '辛亥', '壬酉', '癸寅'],
+      '墓库' : ['甲未', '乙戌', '丙戌', '丁丑', '戊戌', '己丑', '庚丑', '辛辰', '壬辰', '癸未']
     };     
+    
+    //日支查地支    
+    var shenShaDayZhiDiZhi = { 
+      '日破' : ['子午', '丑未', '寅申', '卯酉', '辰戌', '巳亥', '午子', '未丑', '申寅', '酉卯', '戌辰', '亥巳']  
+    }; 
 
+    //日支查时支    
+    var shenShaDayZhiTimeZhi = { 
+      '隔角' : ['子寅', '丑卯', '寅辰', '卯巳', '辰午', '巳未', '午申', '未酉', '申戌', '酉亥', '戌子', '亥丑']	  
+    }; 
+	
     //童子(月支查日支时支)
     var shenShaMonthZhiDayZhiTimeZhi = {     
       '童子' : ['寅寅', '卯寅', '辰寅', '申寅', '酉寅', '戌寅', '寅子', '卯子', '辰子', '申子', '酉子', '戌子', '巳卯', '午卯', '未卯', '亥卯', '子卯', '丑卯', '巳未', '午未', '未未', '亥未', '子未', '丑未', '巳辰', '午辰', '未辰', '亥辰', '子辰', '丑辰']
@@ -696,6 +727,16 @@
         }
       }
     }
+ 
+    for(var i in shenShaZhiZhi){
+      var gzs = shenShaZhiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearZhi()+bazi.getMonthZhi()+bazi.getDayZhi() || gz == bazi.getYearZhi()+bazi.getMonthZhi()+bazi.getTimeZhi()|| gz == bazi.getYearZhi()+bazi.getDayZhi()+bazi.getTimeZhi()|| gz == bazi.getMonthZhi()+bazi.getDayZhi()+bazi.getTimeZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
 	
     for(var i in shenShaYearDayGanZhi){
       var gzs = shenShaYearDayGanZhi[i];
@@ -712,6 +753,16 @@
       for(var j=0,k=gzs.length;j<k;j++){
         var gz = gzs[j];
         if(gz == bazi.getDayZhi()+bazi.getYearZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+
+    for(var i in shenShaYearNaYinYearDiZhi){
+      var gzs = shenShaYearNaYinYearDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearNaYin()+bazi.getYearZhi()){
           shenShaTemp[i] = true;
         }
       }
@@ -746,6 +797,17 @@
         }
       }
     }
+
+    for(var i in shenShaDayZhiDiZhi){
+      var gzs = shenShaDayZhiDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getDayZhi()+bazi.getYearZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+	
     // 神煞结束才调用这段
     for(var i in shenShaTemp){
       shenShaYear.push(i);
@@ -769,6 +831,16 @@
       for(var j=0,k=gzs.length;j<k;j++){
         var gz = gzs[j];
         if(gz == bazi.getYearZhi()+bazi.getMonthZhi() || gz == bazi.getDayZhi()+bazi.getMonthZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+
+    for(var i in shenShaYearNaYinYearDiZhi){
+      var gzs = shenShaYearNaYinYearDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearNaYin()+bazi.getMonthZhi()){
           shenShaTemp[i] = true;
         }
       }
@@ -833,7 +905,17 @@
         }
       }
     }
-        
+ 
+    for(var i in shenShaDayZhiDiZhi){
+      var gzs = shenShaDayZhiDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getDayZhi()+bazi.getMonthZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+ 
     for(var i in shenShaTemp){
       shenShaMonth.push(i);
     }
@@ -860,11 +942,17 @@
         }
       }
     }
-    for(var i in shenShaTemp){
-      shenShaDay.push(i);
+
+    for(var i in shenShaYearNaYinYearDiZhi){
+      var gzs = shenShaYearNaYinYearDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearNaYin()+bazi.getDayZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
     }
     
-    shenShaTemp = {};
     for(var i in shenShaMonthZhiGanZhi){
       var gzs = shenShaMonthZhiGanZhi[i];
       for(var j=0,k=gzs.length;j<k;j++){
@@ -1002,6 +1090,16 @@
       }
     }
 
+    for(var i in shenShaYearNaYinYearDiZhi){
+      var gzs = shenShaYearNaYinYearDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearNaYin()+bazi.getTimeZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+
     for(var i in shenShaMonthZhiGanZhi){
       var gzs = shenShaMonthZhiGanZhi[i];
       for(var j=0,k=gzs.length;j<k;j++){
@@ -1091,7 +1189,27 @@
         }
       }
     }
-    
+ 
+    for(var i in shenShaDayZhiDiZhi){
+      var gzs = shenShaDayZhiDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getDayZhi()+bazi.getTimeZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+ 
+    for(var i in shenShaDayZhiTimeZhi){
+      var gzs = shenShaDayZhiTimeZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getDayZhi()+bazi.getTimeZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+	
     for(var i in shenShaTemp){
       shenShaTime.push(i);
     }
@@ -1124,6 +1242,24 @@
           for(var j=0,k=gzs.length;j<k;j++){
             var gz = gzs[j];
             if(gz == bazi.getYearZhi()+currentYun.daYunGanZhi.substr(1) || gz == bazi.getDayZhi()+currentYun.daYunGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShadaYun.push(i);
+        }
+      }
+    }
+    
+    if(currentYun){
+      if(currentYun.daYunGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaYearNaYinYearDiZhi){
+          var gzs = shenShaYearNaYinYearDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getYearNaYin()+currentYun.daYunGanZhi.substr(1)){
               shenShaTemp[i] = true;
             }
           }
@@ -1277,6 +1413,24 @@
         }
       }
     }
+
+    if(currentYun){
+      if(currentYun.daYunGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaDayZhiDiZhi){
+          var gzs = shenShaDayZhiDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getDayZhi()+currentYun.daYunGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShadaYun.push(i);
+        }
+      }
+    }
 	
     // 大运神煞结束
  
@@ -1304,6 +1458,22 @@
           for(var j=0,k=gzs.length;j<k;j++){
             var gz = gzs[j];
             if(gz == bazi.getYearZhi()+currentYun.liuNianGanZhi.substr(1) || gz == bazi.getDayZhi()+currentYun.liuNianGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShaliuNian.push(i);
+        }
+      }
+
+      if(currentYun.liuNianGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaYearNaYinYearDiZhi){
+          var gzs = shenShaYearNaYinYearDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getYearNaYin()+currentYun.liuNianGanZhi.substr(1)){
               shenShaTemp[i] = true;
             }
           }
@@ -1439,7 +1609,24 @@
         for(var i in shenShaTemp){
           shenShaliuNian.push(i);
         }
+      }	
+
+      if(currentYun.liuNianGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaDayZhiDiZhi){
+          var gzs = shenShaDayZhiDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getDayZhi()+currentYun.liuNianGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShaliuNian.push(i);
+        }
       }	  
+	  
     // 流年神煞结束
  
     // 流月神煞开始	  
@@ -1466,6 +1653,22 @@
           for(var j=0,k=gzs.length;j<k;j++){
             var gz = gzs[j];
             if(gz == bazi.getYearZhi()+currentYun.liuYueGanZhi.substr(1) || gz == bazi.getDayZhi()+currentYun.liuYueGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShaliuYue.push(i);
+        }
+      }
+
+      if(currentYun.liuYueGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaYearNaYinYearDiZhi){
+          var gzs = shenShaYearNaYinYearDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getYearNaYin()+currentYun.liuYueGanZhi.substr(1)){
               shenShaTemp[i] = true;
             }
           }
@@ -1601,7 +1804,24 @@
         for(var i in shenShaTemp){
           shenShaliuYue.push(i);
         }
+      }
+
+      if(currentYun.liuYueGanZhi){
+        shenShaTemp = {};
+        for(var i in shenShaDayZhiDiZhi){
+          var gzs = shenShaDayZhiDiZhi[i];
+          for(var j=0,k=gzs.length;j<k;j++){
+            var gz = gzs[j];
+            if(gz == bazi.getDayZhi()+currentYun.liuYueGanZhi.substr(1)){
+              shenShaTemp[i] = true;
+            }
+          }
+        }
+        for(var i in shenShaTemp){
+          shenShaliuYue.push(i);
+        }
       }	  
+	  
     // 流月神煞结束
     
     //日柱空亡
