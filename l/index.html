@@ -2,12 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>老黄历</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lunar</title>
 <meta name="keywords" content="lunar,阳历,阴历,公历,农历" />
 <meta name="description" content="lunar是一个无依赖的支持阳历和阴历的日历工具库。" />
 <meta name="author" content="6tail" />
-<style>body{background-color:#eef7f2}</style>
 <link rel="stylesheet" href="common.css">
 <link rel="stylesheet" href="highlight.min.css">
 <link rel="stylesheet" href="markdown.css">
@@ -38,11 +36,10 @@
   color:#fff;
   text-decoration:none;
 }
-
 </style>
 </head>
 <body>
-<div style="background-color:#eef7f2;" class="article">
+<div class="article">
 
 <textarea class="md">
 
@@ -53,9 +50,6 @@
 <div class="line"><input id="year" type="text"> 年 <input id="month" type="text"> 月 <input id="day" type="text"> 日</div>
 
 <div class="huangli">
-<style type="text/css">
-.huangli table tbody td{background-color:#eef7f2;}
-</style>  
   <table>
     <tbody>
       <tr>
@@ -94,22 +88,7 @@
         <td>下一节气</td>
         <td id="n"></td>
       </tr>
-      <tr>
-        <td>节日</td>
-        <td id="x"></td>
-      </tr>
-      <tr>
-        <td>纪念日</td>
-        <td id="y"></td>
-      </tr>
-      <tr>
-        <td>数九</td>
-        <td id="shuJiu"></td>
-      </tr>
-      <tr>
-        <td>三伏</td>
-        <td id="fu"></td>
-      </tr>      
+
       <tr>
         <td>月名</td>
         <td id="m"></td>
@@ -212,8 +191,24 @@
       </tr>
       <tr>
         <td>日星歌诀</td>
-        <td id="jiuxing-song"></td>
+        <td id="jiuxing-song"></td> 
       </tr>
+      <tr>
+        <td>节日</td>
+        <td id="x"></td>
+      </tr>
+      <tr>
+        <td>纪念日</td>
+        <td id="y"></td>
+      </tr>
+      <tr>
+        <td>数九</td>
+        <td id="shuJiu"></td>
+      </tr>
+      <tr>
+        <td>三伏</td>
+        <td id="fu"></td>
+      </tr>      	  
     </tbody>
   </table>
   
@@ -463,33 +458,33 @@ mdr('.md');
       '酉':'阴',
       '亥':'阴'
     };      
-      $('#yuexiang').html(d.getYueXiang()+' (天文学中对于地球上看到的月球被太阳照亮部分的称呼，即月球位相变化)');
+      $('#yuexiang').html(d.getYueXiang());
       $('#a').html(d.getYearInGanZhi()+d.getYearShengXiao()+' '+d.getYearNaYin()+' '+LunarUtil.WU_XING_GAN[d.getYearGan()]+LunarUtil.WU_XING_ZHI[d.getYearZhi()]+' '+ YinYang[d.getYearGan()] + YinYang[d.getYearZhi()]);
       $('#a1').html(d.getMonthInGanZhi()+d.getMonthShengXiao()+' '+d.getMonthNaYin()+' '+LunarUtil.WU_XING_GAN[d.getMonthGan()]+LunarUtil.WU_XING_ZHI[d.getMonthZhi()]+' '+ YinYang[d.getMonthGan()] + YinYang[d.getMonthZhi()]);
       $('#a2').html(d.getDayInGanZhi()+d.getDayShengXiao()+' '+d.getDayNaYin()+' '+LunarUtil.WU_XING_GAN[d.getDayGan()]+LunarUtil.WU_XING_ZHI[d.getDayZhi()]+' '+ YinYang[d.getDayGan()] + YinYang[d.getDayZhi()]);
-      $('#a3').html(s.getJulianDay()+'(天文学中由公元前4713年1月1日，协调世界时中午12时开始所经过的天数)');
+      $('#a3').html(s.getJulianDay());
       $('#b').html(d.getYearInChinese()+'年 '+d.getMonthInChinese()+'月 '+d.getDayInChinese());
       $('#c').html(s.getYear()+'年 '+s.getMonth()+'月 '+s.getDay()+'日 星期'+s.getWeekInChinese()+'   '+ s.getXingZuo() +'座');
       $('#m').html(d.getSeason());
-      $('#d').html(d.getPengZuGan()+'；'+d.getPengZuZhi()+'(道家先驱养生诗)');
+      $('#d').html(d.getPengZuGan()+'；'+d.getPengZuZhi());
       $('#yj').html('<span style="color:green">宜</span>：'+d.getDayYi().join(' ')+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red">忌</span>：'+d.getDayJi().join(' '));
       $('#e').html('('+d.getDayInGanZhi()+')'+d.getDayShengXiao()+' <span style="color:red">冲</span> '+d.getChongDesc());
-      $('#js').html(d.getDayJiShen().join(' ')+'(<span style="color:green">宜趋</span>)');
-      $('#xs').html(d.getDayXiongSha().join(' ')+'(<span style="color:red">宜避</span>)');
+      $('#js').html(d.getDayJiShen().join(' '));
+      $('#xs').html(d.getDayXiongSha().join(' '));
       $('#f').html(d.getSha());
-      $('#fd').html(d.getDaySha()+'方(凶)'+'(<span style="color:red">宜避</span>，所值之处忌穿墙凿井、搬迁移徙、修建营造)');      
+      $('#fd').html(d.getDaySha()+'方(凶)'+'(<span style="color:red">宜避</span>，忌穿墙凿井、搬迁移徙、修建营造)');      
       $('#g').html(d.getGong()+'方'+d.getXiu()+'(二十八宿)'+d.getZheng()+'(七政)'+d.getAnimal()+'(28种动物)'+' ('+d.getXiuLuck()+')');
       $('#g1').html(d.getXiuSong());
       $('#h').html('阳贵神：'+d.getPositionYangGuiDesc()+d.getDayPositionYangGui()+' ；阴贵神：'+d.getPositionYinGuiDesc()+d.getDayPositionYinGui());
       $('#i').html(d.getPositionXiDesc()+d.getDayPositionXi());
       $('#i1').html(d.getPositionFuDesc()+d.getDayPositionFu());
       $('#i2').html(d.getPositionCaiDesc()+d.getDayPositionCai());
-      $('#i3').html(d.getMonthPositionTai()+'(忌动土、移床、敲打及钻洞等等事情)');
-      $('#i4').html(d.getDayPositionTai()+'(忌动土、移床、敲打及钻洞等等事情)');
+      $('#i3').html(d.getMonthPositionTai()+' ' +'(忌动土、移床、敲打及钻洞等等事情)');
+      $('#i4').html(d.getDayPositionTai()+' ' +'(忌动土、移床、敲打及钻洞等等事情)');
       $('#x').html(d.getFestivals().join('、')+' '+s.getFestivals().join('、'));
       $('#y').html(d.getOtherFestivals().join('、')+' '+s.getOtherFestivals().join('、'));
-      $('#j').html(d.getZhiXing()+'(十二值星，也称建除十二神，民俗信仰中的十二位神明，分别为建、除、满、平、定、执、破、危、成、收、开、闭，负责保护凡人平安)');
-      $('#k').html(d.getDayTianShen()+'('+d.getDayTianShenType()+') '+ d.getDayTianShenLuck()+ '(十二天神择日法，又名大黄道择日法；黄道主吉，黑道主凶)');
+      $('#j').html(d.getZhiXing()+' ' + '(民俗信仰中的十二位神明，十二值星，也称建除十二神，为建、除、满、平、定、执、破、危、成、收、开、闭，负责保护凡人平安)');
+      $('#k').html(d.getDayTianShen()+'('+d.getDayTianShenType()+') '+ d.getDayTianShenLuck()+' ' + '(十二天神择日法，又名大黄道择日法；黄道主吉，黑道主凶)');
       var p = d.getPrevJieQi(),n = d.getNextJieQi();
       $('#p').html(p.getName()+' '+p.getSolar().toYmdHms()+' 星期'+p.getSolar().getWeekInChinese());
       $('#n').html(n.getName()+' '+n.getSolar().toYmdHms()+' 星期'+n.getSolar().getWeekInChinese());
@@ -515,10 +510,10 @@ mdr('.md');
       $('#fu').html(fu ? fu.toFullString() : '');
       
       // 物候
-      $('#wuhou').html(d.getWuHou()+'(根据黄河流域的地理、气候、和自然界的一些景象编写，反映一年中物候和气候变化的一般情况；以五日为候，三候为气，六气为时，四时为岁，一年 “24节气” 共72候)');
+      $('#wuhou').html(d.getWuHou());
       
       // 六曜
-      $('#liuyao').html(d.getLiuYao()+'(包括先胜、友引、 先负、佛灭、大安和赤口；作为当天行事判定吉凶的参考)');
+      $('#liuyao').html(d.getLiuYao()+' ' +'(指先胜、友引、 先负、佛灭、大安和赤口；作为当天行事判定吉凶的参考)');
       
       renderTime(year,month,day);
     }catch(e){
