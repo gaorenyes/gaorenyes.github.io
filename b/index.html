@@ -41,7 +41,7 @@
     <label><input id="gender_man" type="radio" name="gender" value="+" checked>男</label>
     <label><input id="gender_woman" type="radio" name="gender" value="-">女</label>
     <label><input type="checkbox" id="lunar">阴历</label>
-    <div class="tip">录入一段日期信息到框中，如199908121700-，代表1999年8月12日17点生女。<br>1. +表示男，-表示女。<br>2. 三个连续空格表示阴历。<br>3. 月前有空格表示闰月，非闰月不生效。<br>4. 时间跨度支持：1901-01-01(庚子年)至2099-12-31(己未年)。 </div>
+    <div class="tip">录入一段日期信息到框中，如199908121700-，代表1999年8月12日17点生女。<br>1. +表示男，-表示女。<br>2. 三个连续空格表示阴历。<br>3. 月前有空格表示闰月，非闰月不生效。<br>4. 时间跨度支持：0001-01-01(庚申年)至9999-12-31(己亥年)。 </div>
   </div>
   
   <div id="pan"></div>
@@ -617,12 +617,11 @@
       '月德 德秀(德)' : ['寅丙', '卯甲', '午丙', '申壬','亥甲', '子壬'],
       '月德 德秀' : ['巳庚', '酉庚'], 	  
       '天德合' : ['寅壬', '卯巳', '巳丙', '午寅', '酉亥', '亥庚', '子申'], 
-      '月德合' : ['寅辛', '卯己', '', '午辛', '申丁', '亥己', '子丁'],
+      '月德合' : ['寅辛', '卯己', '午辛', '申丁', '亥己', '子丁'],
       '天德合 月德合' : ['辰丁', '未己', '戌辛'],
       '天德合 德秀(德)' : ['申戊'],
-      '月德合 德秀(德)' : ['巳乙'],
       '天德合 德秀(秀)' : ['丑乙'],
-      '月德合 德秀(秀)' : ['酉乙'],	  
+      '月德合 德秀(秀)' : ['巳乙', '酉乙'],	  
       '天德 月德 德秀(德)' : ['未甲'],
       '天德 月德 德秀' : ['丑庚'],	  
       '阴注阳受' : ['寅子', '卯亥', '辰戌', '巳酉', '午戌', '未亥', '申子', '酉丑', '戌寅', '亥卯', '子寅', '丑丑'],
@@ -717,7 +716,7 @@
     // 年柱神煞开始
     // 每柱神煞开始才加这一行
     var shenShaTemp = {};
- 
+
     for(var i in shenShaGanGan){
       var gzs = shenShaGanGan[i];
       for(var j=0,k=gzs.length;j<k;j++){
@@ -803,6 +802,16 @@
       for(var j=0,k=gzs.length;j<k;j++){
         var gz = gzs[j];
         if(gz == bazi.getDayZhi()+bazi.getYearZhi()){
+          shenShaTemp[i] = true;
+        }
+      }
+    }
+
+    for(var i in shenShaYearNaYinDiZhi){
+      var gzs = shenShaYearNaYinDiZhi[i];
+      for(var j=0,k=gzs.length;j<k;j++){
+        var gz = gzs[j];
+        if(gz == bazi.getYearNaYin()+bazi.getYearZhi()){
           shenShaTemp[i] = true;
         }
       }
@@ -1872,7 +1881,7 @@
 		if(rzkw.indexOf(liuYueZhi) != -1){
 				shenShaliuYue.push("空亡");
 		}    
- 
+	
     s += '<td>年柱：</td>';
     s += '<td colspan="10" class="left small">'+ (shenShaYear.length<1 ? '无吉神凶煞' : shenShaYear.join(' ')) +'</td>';
     s += '</tr>'; 
@@ -2067,7 +2076,6 @@
          }
     }
     s += '<td colspan="10" class="left small">'+(matched.join(' '))+'</td>';
-
     
     s += '<tr>';
     s += '<td>太岁：</td>';
@@ -2273,7 +2281,7 @@
       }else if('-'==v){
         gender = 0;
       }
-      if(year<1901||year>2099){
+      if(year<1||year>9999){
         return;
       }
       if(month>=0&&(month<1||month>12)){
@@ -2309,7 +2317,7 @@
       }else if('-'==v){
         gender = 0;
       }
-      if(year<1901||year>2099){
+      if(year<1||year>9999){
         return;
       }
       if(month<1||month>12){
