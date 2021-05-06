@@ -1107,3 +1107,12 @@
 # 结尾
 
 程序还未完善，有许多地方需要修改，共同进步。
+
+# 效果预览
+
+https://gaorenyes.gitee.io
+https://gaorenyes.github.io
+https://gr.pages.dev
+https://gaoren.vercel.app
+https://gaoren.netlify.app
+https://gaorenyes.bitbucket.io
