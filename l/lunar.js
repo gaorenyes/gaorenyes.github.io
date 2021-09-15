@@ -22,10 +22,10 @@
         return date;
       },
       fromYmd:function(y,m,d){
-        return this._(new Date(y+'/'+m+'/'+d+' 0:0:0'),y,m,d);
+        return this._(new Date(y+'/'+m+'/'+d+' 0:0:0 GMT+0800'),y,m,d);
       },
       fromYmdHms:function(y,m,d,hour,minute,second){
-        return this._(new Date(y+'/'+m+'/'+d+' '+hour+':'+minute+':'+second),y,m,d);
+        return this._(new Date(y+'/'+m+'/'+d+' '+hour+':'+minute+':'+second+' GMT+0800'),y,m,d);
       }
     };
   })();
@@ -179,7 +179,11 @@
               d += 10;
             }
           }
-          return [this._p.year,(this._p.month<10?'0':'')+this._p.month,(d<10?'0':'')+d].join('-');
+          var y = this._p.year + '';
+          while (y.length < 4) {
+            y = '0' + y;
+          }
+          return [y,(this._p.month<10?'0':'')+this._p.month,(d<10?'0':'')+d].join('-');
         },
         toYmdHms:function(){
           return this.toYmd()+' '+[(this._p.hour<10?'0':'')+this._p.hour,(this._p.minute<10?'0':'')+this._p.minute,(this._p.second<10?'0':'')+this._p.second].join(':');
@@ -399,12 +403,13 @@
       o['yearZhiIndexExact'] = (zExact<0?zExact+12:zExact)%12;
     };
     var _computeMonth = function(o,solar){
-      var start = null,i,j;
+      var start = null,i;
       var end;
+      var size = Lunar.JIE_QI_IN_USE.length;
 
       //序号：大雪以前-3，大雪到小寒之间-2，小寒到立春之间-1，立春之后0
       var index = -3;
-      for(i=0,j=Lunar.JIE_QI_IN_USE.length;i<j;i+=2){
+      for(i=0;i<size;i+=2){
         end = o.jieQi[Lunar.JIE_QI_IN_USE[i]];
         var ymd = solar.toYmd();
         var symd = null==start?ymd:start.toYmd();
@@ -414,13 +419,13 @@
         start = end;
         index++;
       }
-      var gOffset = (((o.yearGanIndexByLiChun+(index<0?1:0)) % 5 + 1) * 2) % 10;
-      o['monthGanIndex'] = ((index<0?index+10:index) + gOffset) % 10;
+      var offset = (((o.yearGanIndexByLiChun+(index<0?1:0)) % 5 + 1) * 2) % 10;
+      o['monthGanIndex'] = ((index<0?index+10:index) + offset) % 10;
       o['monthZhiIndex'] = ((index<0?index+12:index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
 
-      var indexExact = -3;
       start = null;
-      for(i=0,j=Lunar.JIE_QI_IN_USE.length;i<j;i+=2){
+      index = -3;
+      for(i=0;i<size;i+=2){
         end = o.jieQi[Lunar.JIE_QI_IN_USE[i]];
         var time = solar.toYmdHms();
         var stime = null==start?time:start.toYmdHms();
@@ -428,11 +433,11 @@
           break;
         }
         start = end;
-        indexExact++;
+        index++;
       }
-      var gOffsetExact = (((o.yearGanIndexExact+(indexExact<0?1:0)) % 5 + 1) * 2) % 10;
-      o['monthGanIndexExact'] = ((indexExact<0?indexExact+10:indexExact) + gOffsetExact) % 10;
-      o['monthZhiIndexExact'] = ((indexExact<0?indexExact+12:indexExact) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
+      offset = (((o.yearGanIndexExact+(index<0?1:0)) % 5 + 1) * 2) % 10;
+      o['monthGanIndexExact'] = ((index<0?index+10:index) + offset) % 10;
+      o['monthZhiIndexExact'] = ((index<0?index+12:index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
     };
     var _computeDay = function(o,solar,hour,minute){
       var noon = Solar.fromYmdHms(solar.getYear(), solar.getMonth(), solar.getDay(), 12, 0, 0);
@@ -890,7 +895,12 @@
         getFestivals:function(){
           var l = [];
           var f = LunarUtil.FESTIVAL[this._p.month+'-'+this._p.day];
-          if(f) l.push(f);
+          if(f){
+            l.push(f);
+          }
+          if (Math.abs(this._p.month) == 12 && this._p.day >= 29 && this._p.year != this.next(1).getYear()) {
+            l.push('除夕');
+          }
           return l;
         },
         getOtherFestivals:function(){
@@ -1432,7 +1442,7 @@
           var startSolar = jieQi.getSolar();
           var startCalendar = ExactDate.fromYmd(startSolar.getYear(),startSolar.getMonth(),startSolar.getDay());
           var days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
-          return LunarUtil.WU_HOU[offset*3+Math.floor(days/5)];
+          return LunarUtil.WU_HOU[(offset*3+Math.floor(days/5)) % LunarUtil.WU_HOU.length];
         }
       };
     };
@@ -1837,6 +1847,20 @@
     };
   })();
   var LunarYear = (function(){
+    var _LEAP_11 = [75, 94, 170, 238, 265, 322, 389, 469, 553, 583, 610, 678, 735, 754, 773, 849, 887, 936, 1050, 1069, 1126, 1145, 1164, 1183, 1259, 1278, 1308, 1373, 1403, 1441, 1460, 1498, 1555, 1593, 1612, 1631, 1642, 2033, 2128, 2147, 2242, 2614, 2728, 2910, 3062, 3244, 3339, 3616, 3711, 3730, 3825, 4007, 4159, 4197, 4322, 4341, 4379, 4417, 4531, 4599, 4694, 4713, 4789, 4808, 4971, 5085, 5104, 5161, 5180, 5199, 5294, 5305, 5476, 5677, 5696, 5772, 5791, 5848, 5886, 6049, 6068, 6144, 6163, 6258, 6402, 6440, 6497, 6516, 6630, 6641, 6660, 6679, 6736, 6774, 6850, 6869, 6899, 6918, 6994, 7013, 7032, 7051, 7070, 7089, 7108, 7127, 7146, 7222, 7271, 7290, 7309, 7366, 7385, 7404, 7442, 7461, 7480, 7491, 7499, 7594, 7624, 7643, 7662, 7681, 7719, 7738, 7814, 7863, 7882, 7901, 7939, 7958, 7977, 7996, 8034, 8053, 8072, 8091, 8121, 8159, 8186, 8216, 8235, 8254, 8273, 8311, 8330, 8341, 8349, 8368, 8444, 8463, 8474, 8493, 8531, 8569, 8588, 8626, 8664, 8683, 8694, 8702, 8713, 8721, 8751, 8789, 8808, 8816, 8827, 8846, 8884, 8903, 8922, 8941, 8971, 9036, 9066, 9085, 9104, 9123, 9142, 9161, 9180, 9199, 9218, 9256, 9294, 9313, 9324, 9343, 9362, 9381, 9419, 9438, 9476, 9514, 9533, 9544, 9552, 9563, 9571, 9582, 9601, 9639, 9658, 9666, 9677, 9696, 9734, 9753, 9772, 9791, 9802, 9821, 9886, 9897, 9916, 9935, 9954, 9973, 9992];
+    var _LEAP_12 = [37, 56, 113, 132, 151, 189, 208, 227, 246, 284, 303, 341, 360, 379, 417, 436, 458, 477, 496, 515, 534, 572, 591, 629, 648, 667, 697, 716, 792, 811, 830, 868, 906, 925, 944, 963, 982, 1001, 1020, 1039, 1058, 1088, 1153, 1202, 1221, 1240, 1297, 1335, 1392, 1411, 1422, 1430, 1517, 1525, 1536, 1574, 3358, 3472, 3806, 3988, 4751, 4941, 5066, 5123, 5275, 5343, 5438, 5457, 5495, 5533, 5552, 5715, 5810, 5829, 5905, 5924, 6421, 6535, 6793, 6812, 6888, 6907, 7002, 7184, 7260, 7279, 7374, 7556, 7746, 7757, 7776, 7833, 7852, 7871, 7966, 8015, 8110, 8129, 8148, 8224, 8243, 8338, 8406, 8425, 8482, 8501, 8520, 8558, 8596, 8607, 8615, 8645, 8740, 8778, 8835, 8865, 8930, 8960, 8979, 8998, 9017, 9055, 9074, 9093, 9112, 9150, 9188, 9237, 9275, 9332, 9351, 9370, 9408, 9427, 9446, 9457, 9465, 9495, 9560, 9590, 9628, 9647, 9685, 9715, 9742, 9780, 9810, 9818, 9829, 9848, 9867, 9905, 9924, 9943, 9962, 10000];
+    var _LEAP = {};
+    var _CACHE = {};
+    var _initLeap = function() {
+      var i, j;
+      for (i = 0, j = _LEAP_11.length; i < j; i++) {
+        _LEAP['_' + _LEAP_11[i]] = 13;
+      }
+      for (i = 0, j = _LEAP_12.length; i < j; i++) {
+        _LEAP['_' + _LEAP_12[i]] = 14;
+      }
+    };
+    _initLeap();
     var _fromYear = function(lunarYear){
       return {
         _p:{
@@ -1881,7 +1905,8 @@
           // 每月天数，长度15
           var dayCounts = [];
           var i,j;
-          var year = this._p.year - 2000;
+          var currentYear = this._p.year;
+          var year = currentYear - 2000;
           // 从上年的大雪到下年的大寒
           for (i = 0, j = Lunar.JIE_QI_IN_USE.length; i < j; i++) {
             // 精确的节气
@@ -1908,25 +1933,41 @@
             dayCounts.push(Math.floor(hs[i + 1] - hs[i]));
           }
 
-          var leap = -1;
-          if (hs[13] <= jq[24]) {
-            i = 1;
-            while (hs[i + 1] > jq[2 * i] && i < 13) {
-              i++;
+          var currentYearLeap = _LEAP['_' + currentYear];
+          if (!currentYearLeap) {
+            currentYearLeap = -1;
+            if (hs[13] <= jq[24]) {
+              i = 1;
+              while (hs[i + 1] > jq[2 * i] && i < 13) {
+                i++;
+              }
+              currentYearLeap = i;
             }
-            leap = i;
           }
+
+          var prevYear = currentYear - 1;
+          var prevYearLeap = _LEAP['_' + prevYear];
+          prevYearLeap = prevYearLeap ? prevYearLeap - 12 : -1;
 
           var y = this._p.year - 1;
           var m = 11;
           for (i = 0, j = dayCounts.length; i < j; i++) {
-            var isLeap = false;
-            if (i == leap) {
-              isLeap = true;
-              m--;
+            var cm = m;
+            var isNextLeap = false;
+            if (y == currentYear && i == currentYearLeap) {
+              cm = -cm;
+            } else if (y == prevYear && i == prevYearLeap) {
+              cm = -cm;
             }
-            this._p.months.push(LunarMonth._(y, isLeap ? -m : m, dayCounts[i], hs[i] + Solar.J2000));
-            m++;
+            if (y == currentYear && i + 1 == currentYearLeap) {
+              isNextLeap = true;
+            } else if (y == prevYear && i + 1 == prevYearLeap) {
+              isNextLeap = true;
+            }
+            this._p.months.push(LunarMonth._(y, cm, dayCounts[i], hs[i] + Solar.J2000));
+            if (!isNextLeap) {
+              m++;
+            }
             if (m == 13) {
               m = 1;
               y++;
@@ -1936,8 +1977,17 @@
         }
       }._compute();
     };
+    var _fromCachedYear = function(lunarYear) {
+      var key = '_' + lunarYear;
+      var obj = _CACHE[key];
+      if (!obj) {
+        obj = _fromYear(lunarYear);
+        _CACHE[key] = obj;
+      }
+      return obj;
+    };
     return {
-      fromYear:function(lunarYear){return _fromYear(lunarYear);}
+      fromYear:function(lunarYear){return _fromCachedYear(lunarYear);}
     };
   })();
   var LunarMonth = (function(){
@@ -2258,7 +2308,7 @@
       ANIMAL:{'角':'蛟','斗':'獬','奎':'狼','井':'犴','亢':'龙','牛':'牛','娄':'狗','鬼':'羊','女':'蝠','氐':'貉','胃':'彘','柳':'獐','房':'兔','虚':'鼠','昴':'鸡','星':'马','心':'狐','危':'燕','毕':'乌','张':'鹿','尾':'虎','室':'猪','觜':'猴','翼':'蛇','箕':'豹','壁':'獝','参':'猿','轸':'蚓'      },
       GONG:{'角':'东','井':'南','奎':'西','斗':'北','亢':'东','鬼':'南','娄':'西','牛':'北','氐':'南','柳':'南','胃':'西','女':'北','房':'东','星':'南','昴':'西','虚':'北','心':'东','张':'南','毕':'西','危':'北','尾':'东','翼':'南','觜':'西','室':'北','箕':'东','轸':'南','参':'西','壁':'北'      },
       SHOU:{'东':'青龙','南':'朱雀','西':'白虎','北':'玄武'},
-      FESTIVAL:{'1-1':'春节','1-15':'元宵节','2-2':'龙头节','5-5':'端午节','7-7':'七夕节','8-15':'中秋节','9-9':'重阳节','12-8':'腊八节','12-30':'除夕'},
+      FESTIVAL:{'1-1':'春节','1-15':'元宵节','2-2':'龙头节','5-5':'端午节','7-7':'七夕节','8-15':'中秋节','9-9':'重阳节','12-8':'腊八节'},
       OTHER_FESTIVAL:{'1-1':['弥勒佛圣诞'],'1-8':['五殿阎罗天子诞'],'1-9':['玉皇上帝诞'],'1-13':['杨公忌'],'2-1':['一殿秦广王诞'],'2-2':['福德土地正神诞'],'2-3':['文昌帝君诞'],'2-6':['东华帝君诞'],'2-8':['释迦牟尼佛出家'],'2-11':['杨公忌'],'2-15':['释迦牟尼佛涅槃','太上老君诞'],'2-17':['东方杜将军诞'],'2-18':['四殿五官王诞','至圣先师孔子讳辰'],'2-19':['观音大士诞'],'2-21':['普贤菩萨诞'],'3-1':['二殿楚江王诞'],'3-3':['玄天上帝诞'],'3-8':['六殿卞城王诞'],'3-9':['杨公忌'],'3-12':['中央五道诞'],'3-15':['玄坛诞','昊天上帝诞'],'3-16':['准提菩萨诞'],'3-18':['中岳大帝诞','后土娘娘诞'],'3-20':['子孙娘娘诞'],'3-27':['七殿泰山王诞'],'3-28':['苍颉至圣先师诞'],'4-1':['八殿都市王诞'],'4-4':['文殊菩萨诞'],'4-7':['杨公忌'],'4-8':['释迦牟尼佛诞','九殿平等王诞'],'4-14':['纯阳祖师诞'],'4-15':['钟离祖师诞'],'4-17':['十殿转轮王诞'],'4-18':['紫徽大帝诞'],'4-20':['眼光圣母诞'],'5-1':['南极长生大帝诞'],'5-5':['杨公忌'],'5-8':['南方五道诞'],'5-11':['天下都城隍诞'],'5-12':['炳灵公诞'],'5-13':['关圣降'],'5-16':['天地元气造化万物之辰'],'5-18':['张天师诞'],'5-22':['孝娥神诞'],'6-3':['杨公忌'],'6-10':['金粟如来诞'],'6-13':['井泉龙王诞'],'6-19':['观音大士涅槃'],'6-23':['南方火神诞'],'6-24':['雷祖诞','关帝诞'],'7-1':['杨公忌'],'7-7':['魁星诞'],'7-12':['长真谭真人诞'],'7-13':['大势至菩萨诞'],'7-15':['中元节'],'7-18':['西王母诞'],'7-19':['太岁诞'],'7-22':['增福财神诞'],'7-29':['杨公忌'],'7-30':['地藏菩萨诞'],'8-1':['许真君诞'],'8-3':['司命灶君诞'],'8-5':['雷声大帝诞'],'8-10':['北斗大帝诞'],'8-12':['西方五道诞'],'8-16':['天曹掠刷真君降'],'8-18':['天人兴福之辰'],'8-23':['汉恒候张显王诞'],'8-24':['灶君夫人诞'],'8-27':['至圣先师孔子诞','杨公忌'],'9-1':['北斗九星降'],'9-2':['北斗九星降'],'9-3':['北斗九星降','五瘟神诞'],'9-4':['北斗九星降'],'9-5':['北斗九星降'],'9-6':['北斗九星降'],'9-7':['北斗九星降'],'9-8':['北斗九星降'],'9-9':['北斗九星降','酆都大帝诞'],'9-13':['孟婆尊神诞'],'9-17':['金龙四大王诞'],'9-19':['观世音菩萨出家'],'9-25':['杨公忌'],'9-30':['药师琉璃光佛诞'],'10-1':['寒衣节'],'10-3':['三茅诞'],'10-5':['达摩祖师诞'],'10-8':['佛涅槃日'],'10-15':['下元节'],'10-23':['杨公忌'],'10-27':['北极紫薇大帝降'],'11-4':['至圣先师孔子诞'],'11-6':['西岳大帝诞'],'11-11':['太乙救苦天尊诞'],'11-17':['阿弥陀佛诞'],'11-19':['太阳日宫诞'],'11-21':['杨公忌'],'11-23':['张仙诞'],'11-25':['掠刷大夫降'],'11-26':['北方五道诞'],'12-8':['释迦如来成佛之辰'],'12-16':['南岳大帝诞'],'12-19':['杨公忌'],'12-21':['天猷上帝诞'],'12-23':['小年','五岳神降'],'12-29':['华严菩萨诞']},
       CHONG:{'子':'午','丑':'未','寅':'申','卯':'酉','辰':'戌','巳':'亥','午':'子','未':'丑','申':'寅','酉':'卯','戌':'辰','亥':'巳'},
       CHONG_GAN:{'甲':'戊','乙':'己','丙':'庚','丁':'辛','戊':'壬','己':'癸','庚':'甲','辛':'乙','壬':'丙','癸':'丁'},
@@ -3125,8 +3175,10 @@
               },
               getXun:function(){return LunarUtil.getXun(this.getGanZhi());},
               getXunKong:function(){return LunarUtil.getXunKong(this.getGanZhi());},
-              getLiuNian: function(){
-                var n = 10;
+              getLiuNian: function(n){
+                if (!n) {
+                  n = 10;
+                }
                 if (this._p.index < 1) {
                   n = this._p.endYear-this._p.startYear+1;
                 }
@@ -3136,8 +3188,10 @@
                 }
                 return l;
               },
-              getXiaoYun: function(){
-                var n = 10;
+              getXiaoYun: function(n){
+                if (!n) {
+                  n = 10;
+                }
                 if (this._p.index < 1) {
                   n = this._p.endYear-this._p.startYear+1;
                 }
@@ -3172,9 +3226,12 @@
               c.setDate(birth.getDay() + this._p.startDay);
               return Solar.fromDate(c);
             },
-            getDaYun: function(){
+            getDaYun: function(n){
+              if (!n) {
+                n = 10;
+              }
               var l = [];
-              for (var i = 0; i < 10; i++) {
+              for (var i = 0; i < n; i++) {
                 l.push(buildDaYun(this,i));
               }
               return l;
