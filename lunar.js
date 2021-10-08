@@ -22,10 +22,10 @@
         return date;
       },
       fromYmd:function(y,m,d){
-        return this._(new Date(y+'/'+m+'/'+d+' 0:0:0 GMT+0800'),y,m,d);
+        return this.fromYmdHms(y,m,d,0,0,0);
       },
       fromYmdHms:function(y,m,d,hour,minute,second){
-        return this._(new Date(y+'/'+m+'/'+d+' '+hour+':'+minute+':'+second+' GMT+0800'),y,m,d);
+        return this._(new Date(y+'/'+m+'/'+d+' '+hour+':'+minute+':'+second),y,m,d);
       }
     };
   })();
@@ -68,7 +68,7 @@
       return _fromYmdHms(year,month,day,hour,minute,second);
     };
     var _fromYmdHms = function(y,m,d,hour,minute,second){
-      if(y===1582&&m==10){
+      if(y===1582&&m===10){
         if(d>=15){
           d -= 10;
         }
@@ -174,7 +174,7 @@
         },
         toYmd:function(){
           var d = this._p.day;
-          if(this._p.year===1582&&this._p.month==10){
+          if(this._p.year===1582&&this._p.month===10){
             if(d>=5){
               d += 10;
             }
@@ -335,7 +335,15 @@
     };
   })();
   var Lunar = (function(){
-    var MS_PER_DAY = 86400000;
+    var _diff = function(after, before) {
+      var current = ExactDate.fromYmdHms(before.getFullYear(), before.getMonth()+1, before.getDate(), before.getHours(), before.getMinutes(), before.getSeconds());
+      var n = 0;
+      while(current<after){
+        n++;
+        current.setDate(current.getDate()+1);
+      }
+      return n;
+    };
     var _computeJieQi = function(o,ly) {
       o['jieQiList'] = [];
       o['jieQi'] = {};
@@ -351,6 +359,14 @@
       var offset = year - 4;
       var yearGanIndex = offset % 10;
       var yearZhiIndex = offset % 12;
+
+      if (yearGanIndex < 0) {
+        yearGanIndex += 10;
+      }
+
+      if (yearZhiIndex < 0) {
+        yearZhiIndex += 12;
+      }
 
       //以立春作为新一年的开始的干支纪年
       var g = yearGanIndex;
@@ -485,7 +501,6 @@
     };
     var _fromDate = function(date){
       var c = ExactDate.fromYmd(date.getFullYear(),date.getMonth()+1,date.getDate());
-      var solarTime = c.getTime();
       var lunarYear = 0;
       var lunarMonth = 0;
       var lunarDay = 0;
@@ -500,7 +515,7 @@
         firstDay.setMinutes(0);
         firstDay.setSeconds(0);
         firstDay.setMilliseconds(0);
-        var days = Math.floor((solarTime - firstDay.getTime()) / MS_PER_DAY);
+        var days = _diff(c, firstDay);
         if (days < m.getDayCount()) {
           lunarYear = m.getYear();
           lunarMonth = m.getMonth();
@@ -827,6 +842,10 @@
             jq = '立春';
           }else if('DA_XUE'===jq){
             jq = '大雪';
+          }else if('YU_SHUI'===jq){
+            jq = "雨水";
+          }else if('JING_ZHE'===jq){
+            jq = "惊蛰";
           }
           return jq;
         },
@@ -1364,7 +1383,7 @@
           if (currentCalendar < startCalendar || currentCalendar >= endCalendar) {
             return null;
           }
-          var days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+          var days = _diff(currentCalendar,startCalendar);
           return this._buildNameAndIndex(LunarUtil.NUMBER[Math.floor(days / 9) + 1] + '九', days % 9 + 1);
         },
         getFu:function(){
@@ -1387,7 +1406,7 @@
             return null;
           }
 
-          var days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+          var days = _diff(currentCalendar,startCalendar);
           if (days < 10) {
             return this._buildNameAndIndex('初伏', days + 1);
           }
@@ -1395,7 +1414,7 @@
           // 第4个庚日，中伏第1天
           startCalendar.setDate(startCalendar.getDate() + 10);
 
-          days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+          days = _diff(currentCalendar,startCalendar);
           if (days < 10) {
             return this._buildNameAndIndex('中伏', days + 1);
           }
@@ -1405,7 +1424,7 @@
 
           var liQiuCalendar = ExactDate.fromYmd(liQiu.getYear(),liQiu.getMonth(),liQiu.getDay());
 
-          days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+          days = _diff(currentCalendar,startCalendar);
           // 末伏
           if (liQiuCalendar <= startCalendar) {
             if (days < 10) {
@@ -1418,7 +1437,7 @@
             }
             // 末伏第1天
             startCalendar.setDate(startCalendar.getDate() + 10);
-            days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+            days = _diff(currentCalendar,startCalendar);
             if (days < 10) {
               return this._buildNameAndIndex('末伏', days + 1);
             }
@@ -1441,14 +1460,14 @@
           var currentCalendar = ExactDate.fromYmd(this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
           var startSolar = jieQi.getSolar();
           var startCalendar = ExactDate.fromYmd(startSolar.getYear(),startSolar.getMonth(),startSolar.getDay());
-          var days = Math.floor((currentCalendar.getTime() - startCalendar.getTime()) / MS_PER_DAY);
+          var days = _diff(currentCalendar,startCalendar);
           return LunarUtil.WU_HOU[(offset*3+Math.floor(days/5)) % LunarUtil.WU_HOU.length];
         }
       };
     };
     return {
       JIE_QI: ['冬至','小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪'],
-      JIE_QI_IN_USE: ['DA_XUE', '冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', 'DONG_ZHI', 'XIAO_HAN', 'DA_HAN', 'LI_CHUN'],
+      JIE_QI_IN_USE: ['DA_XUE', '冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', 'DONG_ZHI', 'XIAO_HAN', 'DA_HAN', 'LI_CHUN', 'YU_SHUI', 'JING_ZHE'],
       fromYmdHms:function(y,m,d,hour,minute,second){return _fromYmdHms(y,m,d,hour,minute,second);},
       fromYmd:function(y,m,d){return _fromYmdHms(y,m,d,0,0,0);},
       fromDate:function(date){return _fromDate(date);}
@@ -2007,7 +2026,7 @@
         getDayCount:function(){return this._p.dayCount;},
         getFirstJulianDay:function(){return this._p.firstJulianDay;},
         isLeap:function(){return this._p.month<0;},
-        toString:function(){return this.getYear()+'年'+LunarUtil.MONTH[Math.abs(this.getMonth())]+'月('+this.getDayCount()+')天';}
+        toString:function(){return this.getYear()+'年'+(this.isLeap()?'闰':'')+LunarUtil.MONTH[Math.abs(this.getMonth())]+'月('+this.getDayCount()+')天';}
       };
     };
     return {
