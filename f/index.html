@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>佛历月历</title>
+<meta name="keywords" content="lunar,阳历,阴历,公历,农历" />
+<meta name="description" content="lunar是一个无依赖的支持阳历和阴历的日历工具库。" />
+<meta name="author" content="6tail" />
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="highlight.min.css">
+<link rel="stylesheet" href="markdown.css">
+<link rel="stylesheet" href="page.css">
+<style type="text/css">
+#yueli{
+  display:block;
+  margin:10px;
+  padding:0;
+  width:100%;
+  list-style:none;
+}
+#yueli li{
+  position:relative;
+  display:block;
+  float:left;
+  width:14.08571%;
+  height:100px;
+  margin:0;
+  padding:0;
+  text-align:center;
+  cursor:default;
+  font-size:16px;
+  overflow:hidden;
+  background:#F8F8F8;
+  margin:0.1%;
+}
+#yueli li.week{
+  height:30px;
+  line-height:30px;
+  background:#5BC0DE;
+  color:#fff;
+}
+#yueli b{
+  font-size:12px;
+  font-weight:normal;
+  color:#888;
+}
+#yueli i{
+  display:block;
+  font-size:11px;
+  font-style:normal;
+  color:#C40000;
+}
+#yueli p{
+  margin:0;
+  font-style:normal;
+  position:absolute;
+  right:0;
+  top:0;
+  text-align:center;
+  
+}
+#yueli p u{
+  margin-bottom:2px;
+  display:block;
+  font-size:10px;
+  font-style:normal;
+  text-decoration:none;
+  background:#5CB85C;
+  color:#FFF;
+  padding:0 3px;
+}
+.bar{
+  text-align:center;
+  height:30px;
+  line-height:30px;
+}
+.bar span{
+  margin:0 30px;
+}
+</style>
+</head>
+<body>
+<div class="article">
+<textarea class="md">
+## 佛历月历
+
+</textarea>
+<div class="bar">
+  <a href="javascript:void(0);" id="btn-prev" target="_self">上一月</a>
+  <span id="month"></span>
+  <a href="javascript:void(0);" id="btn-next" target="_self">下一月</a>
+</div>
+<ul id="yueli"></ul>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/marked/0.8.2/marked.min.js"></script>
+<script src="common.js"></script>
+<script src="lunar.js"></script>
+<script>
+mdr('.md');
+</script>
+<script>
+(function(){
+
+function generate(mm){
+  var days = mm.getDays();
+  document.getElementById('month').innerHTML = mm.toFullString()+' 佛历'+days[days.length-1].getLunar().getFoto().getYear()+'年';
+  var s = '';
+  var WEEK = '日一二三四五六'.split('');
+  var week = days[0].getWeek();
+  for(var i=0;i<7;i++){
+    s += '<li class="week">'+WEEK[i]+'</li>';
+  }
+  for(var i=0;i<week;i++){
+    s += '<li></li>';
+  }
+  for(var i=0,j=days.length;i<j;i++){
+    var d = days[i];
+    var dl = d.getLunar();
+    var foto = dl.getFoto();
+    var sf = foto.getFestivals();
+    s += '<li>'+d.getDay()+'<br />';
+    if(1==dl.getDay()){
+      s += '<b>'+dl.getMonthInChinese()+'月</b>';
+    }else{
+      s += '<b>'+dl.getDayInChinese()+'</b>';
+    }
+    if(sf.length>0){
+      for(var m=0,n=sf.length;m<n;m++){
+        s += '<i>'+sf[m]+'</i>';
+      }
+    }
+    s += '<p>';
+    if(foto.isDayZhaiTen()){
+      s += '<u>十斋日</u>';
+    }
+    if(foto.isDayZhaiSix()){
+      s += '<u>六斋日</u>';
+    }
+    if(foto.isDayZhaiGuanYin()){
+      s += '<u>观音斋</u>';
+    }
+    if(foto.isDayZhaiShuoWang()){
+      s += '<u>朔望斋</u>';
+    }
+    s += '</p>';
+    s += '</li>';
+  }
+  document.getElementById('yueli').innerHTML = s;
+}
+
+  var month = SolarMonth.fromDate(new Date());
+  generate(month);
+  
+  document.getElementById('btn-prev').onclick = function(){
+    month = month.next(-1);
+    generate(month);
+  };
+  
+  document.getElementById('btn-next').onclick = function(){
+    month = month.next(1);
+    generate(month);
+  };
+  
+})();
+</script>
+</body>
+</html>
