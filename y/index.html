@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>年历</title>
+<meta name="keywords" content="lunar,阳历,阴历,公历,农历,佛历,道历" />
+<meta name="description" content="lunar是一个无依赖的支持阳历、阴历、佛历和道历的日历工具库。" />
+<meta name="author" content="6tail" />
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="highlight.min.css">
+<link rel="stylesheet" href="markdown.css">
+<link rel="stylesheet" href="page.css">
+<style type="text/css">
+#guali{
+  position:relative;
+  margin-bottom:20px;
+  clear:both;
+  zoom:1;
+  overflow:hidden;
+}
+#guali ul.month{
+  display:block;
+  margin:10px;
+  padding:0;
+  width:350px;
+  height:420px;
+  float:left;
+  list-style:none;
+  background-color:#F8F8F8
+}
+#guali h3{clear:both;text-align:center;}
+#guali ul.month li{
+  position:relative;
+  display:block;
+  float:left;
+  width:50px;
+  height:50px;
+  margin:0;
+  padding:0;
+  text-align:center;
+  cursor:default;
+  line-height:1em;
+}
+#guali ul.month b{
+  font-size:9px;
+  font-weight:normal;
+  color:#888;
+}
+#guali ul.month i{
+  font-size:9px;
+  font-style:normal;
+  color:#C40000;
+  white-space:nowrap;
+}
+#guali ul.month u{
+  font-size:9px;
+  font-style:normal;
+  text-decoration:none;
+  color:#FFF;
+  position:absolute;
+  right:0;
+  top:0;
+  width:16px;
+  height:16px;
+  text-align:center;
+  line-height:16px;
+  background:#5CB85C;
+}
+#guali ul.month u.work{
+  background:#D9534F;
+}
+.bar{
+  text-align:center;
+  height:30px;
+  line-height:30px;
+}
+.bar span{
+  margin:0 30px;
+}
+</style>
+</head>
+<body>
+<div class="article">
+<textarea class="md">
+## 年历
+
+</textarea>
+<div class="bar">
+  <a href="javascript:void(0);" id="btn-prev" target="_self">上一年</a>
+  <span id="year"></span>
+  <a href="javascript:void(0);" id="btn-next" target="_self">下一年</a>
+</div>
+<div id="guali"></div>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/marked/0.8.2/marked.min.js"></script>
+<script src="common.js"></script>
+<script src="lunar.js"></script>
+<script>
+mdr('.md');
+</script>
+<script>
+(function(){
+  function generate(year){
+    document.getElementById('year').innerHTML = year.toFullString();
+    var months = year.getMonths();
+    var s = '';
+    var WEEK = '日一二三四五六'.split('');
+    for(var x=0,y=months.length;x<y;x++){
+      var mm = months[x];
+      s += '<ul class="month"><h3>'+mm.getMonth()+'月</h3>';
+      var days = mm.getDays();
+      var week = days[0].getWeek();
+      for(var i=0;i<7;i++){
+        s += '<li>'+WEEK[i]+'</li>';
+      }
+      for(var i=0;i<week;i++){
+        s += '<li></li>';
+      }
+      for(var i=0,j=days.length;i<j;i++){
+        var d = days[i];
+        var dl = d.getLunar();
+        var sf = d.getFestivals();
+        var lf = dl.getFestivals();
+        var fs = [];
+        var jq = dl.getJieQi();
+        if(jq){
+          fs.push(jq);
+        }
+        for(var m=0,n=sf.length;m<n;m++){
+          fs.push(sf[m]);
+        }
+        for(var m=0,n=lf.length;m<n;m++){
+          fs.push(lf[m]);
+        }
+        s += '<li>'+d.getDay()+'<br />';
+        if(fs.length>0){
+          s += '<i>'+fs.join(',')+'</i>';
+        }else{
+          if(1==dl.getDay()){
+            s += '<b>'+dl.getMonthInChinese()+'月</b>';
+          }else{
+            s += '<b>'+dl.getDayInChinese()+'</b>';
+          }
+        }
+        var h = HolidayUtil.getHoliday(d.toYmd());
+        if(h){
+          s += '<u';
+          if(h.isWork()){
+            s += ' class="work"';
+          }
+          s += '>'+(h.isWork()?'班':'休')+'</u>';
+        }
+        s += '</li>';
+      }
+      s += '</ul>';
+    }
+    document.getElementById('guali').innerHTML = s;
+  }
+  
+  var year = SolarYear.fromDate(new Date());
+  generate(year);
+  
+  document.getElementById('btn-prev').onclick = function(){
+    year = year.next(-1);
+    generate(year);
+  };
+  
+  document.getElementById('btn-next').onclick = function(){
+    year = year.next(1);
+    generate(year);
+  };
+})();
+</script>
+</body>
+</html>
