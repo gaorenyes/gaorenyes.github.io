@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=1.0, user-scalable=0">
-  <title>智能排盘</title>
+  <title>高人有术四柱八字智能排盘</title>
   <style>
   *{margin:0;padding:0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;-o-box-sizing:border-box;box-sizing:border-box;outline:none}
   html{font-size:18px;font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;font-style:normal;}
@@ -41,11 +41,13 @@
     <label><input id="gender_man" type="radio" name="gender" value="+" checked>男</label>
     <label><input id="gender_woman" type="radio" name="gender" value="-">女</label>
     <label><input type="checkbox" id="lunar">阴历</label>
+    <label><input id="zi0" type="radio" name="zi" value="2" checked>当日明时</label>
+    <label><input id="zi1" type="radio" name="zi" value="1">明日明时</label>
     <div class="tip">录入一段日期信息到框中，如199908121700-，代表1999年8月12日17点生女。<br>1. +表示男，-表示女。<br>2. 三个连续空格表示阴历。<br>3. 月前有空格表示闰月，非闰月不生效。<br>4. 时间跨度支持：0001(庚申年)至9999(己亥年)。 </div>
   </div>
   
   <div id="pan"></div>
-<script src="https://cdn.jsdelivr.net/gh/gaorenyes/gaorenyes.github.io@main/lunar.js"></script>
+<script src="lunar.js"></script>
 <script>
 (function(W,D){
   var setClass = function(el,v){
@@ -61,9 +63,12 @@
   var padding = function(n){
     return (n<10?'0':'') + n;
   };
+  var selectSect = 2;  
   var input = D.getElementById('input');
   var genderMan = D.getElementById('gender_man');
   var genderWoman = D.getElementById('gender_woman');
+  var zi0 = D.getElementById('zi0');
+  var zi1 = D.getElementById('zi1');
   var lunarCheck = D.getElementById('lunar');
   var result = D.getElementById('pan');
   
@@ -76,6 +81,11 @@
       v = v + gender;
     }
     input.value = v;
+    onInput();
+  };
+  
+  var onChangeZi = function(){
+    selectSect = zi0.checked ? 2 : 1;
     onInput();
   };
   
@@ -132,6 +142,8 @@
   
   var computeEightChar = function(lunar,solar,gender){
     var bazi = lunar.getEightChar();
+    // 选择流派
+    bazi.setSect(selectSect);	
     var currentYear,startYunSolar,daYun,daYunSize,currentYun;
     if(-1!=gender){
       var date = new Date();
@@ -3236,6 +3248,8 @@
   input.onpropertychange = onInput;
   genderMan.onclick = onChangeGender;
   genderWoman.onclick = onChangeGender;
+  zi0.onclick = onChangeZi;
+  zi1.onclick = onChangeZi;
   lunarCheck.onclick = onChangeLunar;
 })(window,document);
 </script>
