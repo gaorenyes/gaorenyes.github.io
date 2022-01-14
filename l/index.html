@@ -61,6 +61,14 @@
         <td id="b"></td>
       </tr>
       <tr>
+        <td>佛历</td>
+        <td id="foto"></td>
+      </tr>
+      <tr>
+        <td>道历</td>
+        <td id="tao"></td>
+      </tr>
+      <tr>
         <td>年</td>
         <td id="a"></td>
       </tr>
@@ -75,7 +83,14 @@
       <tr>
         <td>空亡</td>
         <td id="xun"></td>
-      </tr>      
+      </tr>
+        <td>日禄</td>
+        <td id="rilu"></td>
+      </tr>
+      <tr>
+        <td>纪念节日</td>
+        <td id="x"></td>
+      </tr>
       <tr>
         <td>儒略日</td>
         <td id="a3"></td>
@@ -88,7 +103,14 @@
         <td>下一节气</td>
         <td id="n"></td>
       </tr>
-
+      <tr>
+        <td>数九</td>
+        <td id="shuJiu"></td>
+      </tr>
+      <tr>
+        <td>三伏</td>
+        <td id="fu"></td>
+      </tr>
       <tr>
         <td>月名</td>
         <td id="m"></td>
@@ -102,15 +124,31 @@
         <td id="liuyao"></td>
       </tr>      
       <tr>
-        <td>七十二候</td>
+        <td>物候</td>
         <td id="wuhou"></td>
+      </tr>
+      <tr>
+        <td>治水</td>
+        <td id="zhishui"></td>
+      </tr>
+      <tr>
+        <td>分饼</td>
+        <td id="fenbing"></td>
+      </tr>
+      <tr>
+        <td>耕田</td>
+        <td id="gengtian"></td>
+      </tr>
+      <tr>
+        <td>得金</td>
+        <td id="dejin"></td>
       </tr>
       <tr>
         <td>彭祖百忌</td>
         <td id="d"></td>
       </tr>
       <tr>
-        <td>宜忌</td>
+        <td>当日宜忌</td>
         <td id="yj"></td>
       </tr>
       <tr>
@@ -130,27 +168,39 @@
         <td id="fd"></td>
       </tr>
       <tr>
-        <td>贵神</td>
+        <td>贵神方位</td>
         <td id="h"></td>
       </tr>
       <tr>
-        <td>喜神</td>
+        <td>喜神方位</td>
         <td id="i"></td>
       </tr>
       <tr>
-        <td>福神</td>
+        <td>福神方位</td>
         <td id="i1"></td>
       </tr>
       <tr>
-        <td>财神</td>
+        <td>财神方位</td>
         <td id="i2"></td>
       </tr>
       <tr>
-        <td>值星</td>
+        <td>当月胎神</td>
+        <td id="i3"></td>
+      </tr>
+      <tr>
+        <td>当日胎神</td>
+        <td id="i4"></td>
+      </tr>
+      <tr>
+        <td>太岁方位</td>
+        <td id="i5"></td>
+      </tr>
+      <tr>
+        <td>十二值星</td>
         <td id="j"></td>
       </tr>
       <tr>
-        <td>天神</td>
+        <td>十二天神</td>
         <td id="k"></td>
       </tr>
       <tr>
@@ -162,12 +212,8 @@
         <td id="g1"></td>
       </tr>	  
       <tr>
-        <td>当月胎神</td>
-        <td id="i3"></td>
-      </tr>
-      <tr>
-        <td>当日胎神</td>
-        <td id="i4"></td>
+        <td>三元九运</td>
+        <td id="syjy"></td>
       </tr>
       <tr>
         <td>当年九星</td>
@@ -193,22 +239,6 @@
         <td>日星歌诀</td>
         <td id="jiuxing-song"></td> 
       </tr>
-      <tr>
-        <td>节日</td>
-        <td id="x"></td>
-      </tr>
-      <tr>
-        <td>纪念日</td>
-        <td id="y"></td>
-      </tr>
-      <tr>
-        <td>数九</td>
-        <td id="shuJiu"></td>
-      </tr>
-      <tr>
-        <td>三伏</td>
-        <td id="fu"></td>
-      </tr>      	  
     </tbody>
   </table>
   
@@ -222,7 +252,7 @@
 <script src="highlight.min.js"></script>
 <script src="marked.min.js"></script>
 <script src="common.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/gaorenyes/gaorenyes.github.io@main/lunar.js"></script>
+<script src="lunar.js"></script>
 <script>
 mdr('.md');
 </script>
@@ -430,7 +460,12 @@ mdr('.md');
       month = parseInt(month,10);
       day = parseInt(day,10);
       var s = Solar.fromYmd(year,month,day);
+      var h = HolidayUtil.getHoliday(year, month, day);
       var d = s.getLunar();
+      var foto = d.getFoto();
+      var tao = d.getTao();
+      $('#foto').html(foto.getYearInChinese()+'年 '+foto.getMonthInChinese()+'月 '+foto.getDayInChinese());
+      $('#tao').html(tao.getYearInChinese()+'年 '+tao.getMonthInChinese()+'月 '+tao.getDayInChinese());	  
       var YinYang = {
       '甲':'阳',
       '丙':'阳',
@@ -479,16 +514,58 @@ mdr('.md');
       $('#i').html(d.getPositionXiDesc()+d.getDayPositionXi());
       $('#i1').html(d.getPositionFuDesc()+d.getDayPositionFu());
       $('#i2').html(d.getPositionCaiDesc()+d.getDayPositionCai());
-      $('#i3').html(d.getMonthPositionTai()+' ' +'(忌动土、移床、敲打及钻洞等等事情)');
-      $('#i4').html(d.getDayPositionTai()+' ' +'(忌动土、移床、敲打及钻洞等等事情)');
-      $('#x').html(d.getFestivals().join('、')+' '+s.getFestivals().join('、'));
-      $('#y').html(d.getOtherFestivals().join('、')+' '+s.getOtherFestivals().join('、'));
-      $('#j').html(d.getZhiXing()+' ' + '(民俗信仰中的十二位神明，十二值星，也称建除十二神，为建、除、满、平、定、执、破、危、成、收、开、闭，负责保护凡人平安)');
-      $('#k').html(d.getDayTianShen()+'('+d.getDayTianShenType()+') '+ d.getDayTianShenLuck()+' ' + '(十二天神择日法，又名大黄道择日法；黄道主吉，黑道主凶)');
+      $('#i3').html(d.getMonthPositionTai()+' ' +'(忌动土、移床、敲打及钻洞等)');
+      $('#i4').html(d.getDayPositionTai());
+      $('#i5').html(d.getDayPositionTaiSuiDesc());
+	  
+      var fs = [];
+      var f = d.getFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      f = d.getOtherFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      f = s.getFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      f = s.getOtherFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      f = foto.getFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      f = tao.getFestivals();
+      if (f) {
+        for (var i=0,j=f.length;i<j;i++){
+          fs.push(f[i]);
+        }
+      }
+      if (h) {
+        fs.push(h.getName()+(h.isWork()?'调休':'放假'));
+      }
+      $('#x').html(fs.join('、'));
+      $('#j').html(d.getZhiXing());
+      $('#k').html(d.getDayTianShen()+'('+d.getDayTianShenType()+') '+ d.getDayTianShenLuck());
+	  
       var p = d.getPrevJieQi(),n = d.getNextJieQi();
       $('#p').html(p.getName()+' '+p.getSolar().toYmdHms()+' 星期'+p.getSolar().getWeekInChinese());
       $('#n').html(n.getName()+' '+n.getSolar().toYmdHms()+' 星期'+n.getSolar().getWeekInChinese());
-      
+  
       var jiuxing = d.getDayNineStar();
       var jiuxingy = d.getYearNineStar();
       var jiuxingm = d.getMonthNineStar();
@@ -501,7 +578,7 @@ mdr('.md');
       $('#jiuxing-songy').html(jiuxingy.getSongInTaiYi());
       $('#jiuxing-songm').html(jiuxingm.getSongInTaiYi());
       $('#jiuxing-songt').html(jiuxingt.getSongInTaiYi());      
-      $('#xun').html('年'+d.getYearXunKong()+'  月'+d.getMonthXunKong()+'  日'+d.getDayXunKong());
+      $('#xun').html('年空'+d.getYearXunKong()+'  月空'+d.getMonthXunKong()+'  日空'+d.getDayXunKong());
 
       var shuJiu = d.getShuJiu();
       $('#shuJiu').html(shuJiu ? shuJiu.toFullString() :+ '');
@@ -510,11 +587,24 @@ mdr('.md');
       $('#fu').html(fu ? fu.toFullString() : '');
       
       // 物候
-      $('#wuhou').html(d.getWuHou());
-      
+      $('#wuhou').html(d.getHou() + '，' +d.getWuHou());      
       // 六曜
-      $('#liuyao').html(d.getLiuYao()+' ' +'(指先胜、友引、 先负、佛灭、大安和赤口；作为当天行事判定吉凶的参考)');
+      $('#liuyao').html(d.getLiuYao());
+      // 日禄
+      $('#rilu').html(d.getDayLu());
       
+      var lunarYear = LunarYear.fromYear(d.getYear());
+      //三元九运
+      $('#syjy').html(lunarYear.getYuan() + ' ' + lunarYear.getYun());
+      // 治水
+      $('#zhishui').html(lunarYear.getZhiShui());
+      // 分饼
+      $('#fenbing').html(lunarYear.getFenBing());
+      // 耕田
+      $('#gengtian').html(lunarYear.getGengTian());
+      // 得金
+      $('#dejin').html(lunarYear.getDeJin()); 
+	  
       renderTime(year,month,day);
     }catch(e){
       console.log(e);
