@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>八字转阳历</title>
+<meta name="keywords" content="lunar,阳历,阴历,公历,农历,佛历,道历" />
+<meta name="description" content="lunar是一个无依赖的支持阳历、阴历、佛历和道历的日历工具库。" />
+<meta name="author" content="6tail" />
+<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="highlight.min.css">
+<link rel="stylesheet" href="markdown.css">
+<link rel="stylesheet" href="page.css">
+<style type="text/css">
+.line{
+  margin:20px;
+}
+.line input{
+  padding:5px;
+}
+</style>
+</head>
+<body>
+<div class="article">
+<textarea class="md">
+## 八字
+</textarea>
+<div class="line">年柱：<input id="year" type="text"></div>
+<div class="line">月柱：<input id="month" type="text"></div>
+<div class="line">日柱：<input id="day" type="text"></div>
+<div class="line">时柱：<input id="time" type="text"></div>
+<div class="line">起年：<input id="baseYear" type="text" value="1900"></div>
+<div class="line">流派：<select id="sect"><option value="2">当日明时</option><option value="1">明日明时</option></select></div>
+<textarea class="md">
+## 阳历
+</textarea>
+<ul id="solars"></ul>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.7.0/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/marked/0.8.2/marked.min.js"></script>
+<script src="common.js"></script>
+<script src="lunar.js"></script>
+<script>
+mdr('.md');
+</script>
+<script>
+(function(){
+  var today = Solar.fromDate(new Date());
+  var eightChar = today.getLunar().getEightChar();
+  $('#year').val(eightChar.getYear());
+  $('#month').val(eightChar.getMonth());
+  $('#day').val(eightChar.getDay());
+  $('#time').val(eightChar.getTime());
+  
+  var throttle = function(fn,delay,atleast){
+    var timer = null;
+    var previous = null;
+    return function(){
+      var now = +new Date();
+      if(!previous) previous = now;
+      if(atleast && now - previous > atleast){
+        fn();
+        previous = now;
+        clearTimeout(timer);
+      } else {
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+          fn();
+          previous = null;
+        }, delay);
+      }
+    }
+  };
+  
+  var onChange = throttle(function(){
+    compute();
+  },20,50);
+  
+  var compute = function(){
+    $('#solars').html('<li>计算中...</li>');
+    try{
+      var year = $('#year').val();
+      var month = $('#month').val();
+      var day = $('#day').val();
+      var time = $('#time').val();
+      var sect = parseInt($('#sect').val());
+      var baseYear = parseInt($('#baseYear').val());
+      var solars = Solar.fromBaZi(year, month, day, time, sect, baseYear);
+      var size = solars.length;
+      if (size < 1) {
+        $('#solars').html('<li>无</li>');
+      } else {
+        $('#solars').html('');
+        for (var i=0; i<size; i++) {
+          var solar = solars[i];
+          $('<li>' + solar.toYmdHms() + '</li>').appendTo($('#solars'));
+        }
+      }
+    }catch(e){
+      $('#solars').html('<li>出错了！</li>');
+    }
+  };
+
+  compute();
+
+  $('#year').on('input propertychange',onChange);
+  $('#month').on('input propertychange',onChange);
+  $('#day').on('input propertychange',onChange);
+  $('#time').on('input propertychange',onChange);
+  $('#baseYear').on('input propertychange',onChange);
+  $('#sect').on('change',onChange);
+})();
+</script>
+</body>
+</html>
