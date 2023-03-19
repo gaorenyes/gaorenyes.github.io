@@ -10,51 +10,6 @@
     }
   }
 })(this,function(){
-  var ExactDate = (function(){
-    return {
-      _:function(date,y,m,d){
-        if(y<100){
-          date.setFullYear(y);
-          date.setMonth(m-1);
-          date.setDate(d);
-        }
-        date.setMilliseconds(0);
-        return date;
-      },
-      fromYmd:function(y,m,d){
-        return this.fromYmdHms(y,m,d,0,0,0);
-      },
-      fromYmdHms:function(y,m,d,hour,minute,second){
-        return this._(new Date(y+'/'+m+'/'+d+' '+hour+':'+minute+':'+second),y,m,d);
-      },
-      getDaysBetweenYmd:function(ay, am, ad, by, bm, bd){
-        var n;
-        var days;
-        var i;
-        if (ay == by) {
-          n = SolarUtil.getDaysInYear(by, bm, bd) - SolarUtil.getDaysInYear(ay, am, ad);
-        } else if (ay > by) {
-          days = SolarUtil.getDaysOfYear(by) - SolarUtil.getDaysInYear(by, bm, bd);
-          for (i = by + 1; i < ay; i++) {
-            days += SolarUtil.getDaysOfYear(i);
-          }
-          days += SolarUtil.getDaysInYear(ay, am, ad);
-          n = -days;
-        } else {
-          days = SolarUtil.getDaysOfYear(ay) - SolarUtil.getDaysInYear(ay, am, ad);
-          for (i = ay + 1; i < by; i++) {
-            days += SolarUtil.getDaysOfYear(i);
-          }
-          days += SolarUtil.getDaysInYear(by, bm, bd);
-          n = days;
-        }
-        return n;
-      },
-      getDaysBetween:function(date0, date1){
-        return this.getDaysBetweenYmd(date0.getFullYear(), date0.getMonth() + 1, date0.getDate(), date1.getFullYear(), date1.getMonth() + 1, date1.getDate());
-      }
-    };
-  })();
   var Solar = (function(){
     var _fromDate = function(date){
       return _fromYmdHms(date.getFullYear(),date.getMonth()+1,date.getDate(),date.getHours(),date.getMinutes(),date.getSeconds());
@@ -102,10 +57,49 @@
       return _fromYmdHms(year,month,day,hour,minute,second);
     };
     var _fromYmdHms = function(y,m,d,hour,minute,second){
-      if(y===1582&&m===10){
-        if(d>=15){
-          d -= 10;
+      var oy = y;
+      var om = m;
+      var od = d;
+      var oh = hour;
+      var oi = minute;
+      var os = second;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
+      m *= 1;
+      if(isNaN(m)){
+        throw new Error('wrong solar month '+om);
+      }
+      d *= 1;
+      if(isNaN(d)){
+        throw new Error('wrong solar day '+od);
+      }
+      hour *= 1;
+      if(isNaN(hour)){
+        throw new Error('wrong hour '+oh);
+      }
+      minute *= 1;
+      if(isNaN(minute)){
+        throw new Error('wrong minute '+oi);
+      }
+      second *= 1;
+      if(isNaN(second)){
+        throw new Error('wrong second '+os);
+      }
+      if(1582===y && 10===m){
+        if(d>4&&d<15){
+          throw new Error('wrong solar year '+y+' month '+m+' day '+d);
         }
+      }
+      if(hour<0||hour>23){
+        throw new Error('wrong hour '+hour);
+      }
+      if(minute<0||minute>59){
+        throw new Error('wrong minute '+minute);
+      }
+      if(second<0||second>59){
+        throw new Error('wrong second '+second);
       }
       return {
         _p:{
@@ -114,8 +108,88 @@
           day:d,
           hour:hour,
           minute:minute,
-          second:second,
-          calendar:ExactDate.fromYmdHms(y,m,d,hour,minute,second)
+          second:second
+        },
+        subtract:function(solar){
+          return SolarUtil.getDaysBetween(solar.getYear(), solar.getMonth(), solar.getDay(), this._p.year, this._p.month, this._p.day);
+        },
+        subtractMinute:function(solar){
+          var days = this.subtract(solar);
+          var cm = this._p.hour * 60 + this._p.minute;
+          var sm = solar.getHour() * 60 + solar.getMinute();
+          var m = cm - sm;
+          if (m < 0) {
+            m += 1440;
+            days--;
+          }
+          m += days * 1440;
+          return m;
+        },
+        isAfter: function(solar) {
+          if (this._p.year > solar.getYear()) {
+            return true;
+          }
+          if (this._p.year < solar.getYear()) {
+            return false;
+          }
+          if (this._p.month > solar.getMonth()) {
+            return true;
+          }
+          if (this._p.month < solar.getMonth()) {
+            return false;
+          }
+          if (this._p.day > solar.getDay()) {
+            return true;
+          }
+          if (this._p.day < solar.getDay()) {
+            return false;
+          }
+          if (this._p.hour > solar.getHour()) {
+            return true;
+          }
+          if (this._p.hour < solar.getHour()) {
+            return false;
+          }
+          if (this._p.minute > solar.getMinute()) {
+            return true;
+          }
+          if (this._p.minute < solar.getMinute()) {
+            return false;
+          }
+          return this._p.second > solar.getSecond();
+        },
+        isBefore: function(solar) {
+          if (this._p.year > solar.getYear()) {
+            return false;
+          }
+          if (this._p.year < solar.getYear()) {
+            return true;
+          }
+          if (this._p.month > solar.getMonth()) {
+            return false;
+          }
+          if (this._p.month < solar.getMonth()) {
+            return true;
+          }
+          if (this._p.day > solar.getDay()) {
+            return false;
+          }
+          if (this._p.day < solar.getDay()) {
+            return true;
+          }
+          if (this._p.hour > solar.getHour()) {
+            return false;
+          }
+          if (this._p.hour < solar.getHour()) {
+            return true;
+          }
+          if (this._p.minute > solar.getMinute()) {
+            return false;
+          }
+          if (this._p.minute < solar.getMinute()) {
+            return true;
+          }
+          return this._p.second < solar.getSecond();
         },
         getYear:function(){
           return this._p.year;
@@ -136,7 +210,26 @@
           return this._p.second;
         },
         getWeek:function(){
-          return this._p.calendar.getDay();
+          var start = _fromYmdHms(1582, 10, 15, 0, 0, 0);
+          var y = this._p.year;
+          var m = this._p.month;
+          var d = this._p.day;
+          var current = _fromYmdHms(y, m, d, 0, 0, 0);
+          // 蔡勒公式
+          if (m < 3) {
+            m += 12;
+            y--;
+          }
+          var c = Math.floor(y/100);
+          y = y - c * 100;
+          var x = y + Math.floor(y/4) + Math.floor(c/4) - 2*c;
+          var w;
+          if (current.isBefore(start)) {
+            w = (x + Math.floor((13*(m+1))/5) + d + 2) % 7;
+          } else {
+            w = (x + Math.floor((26*(m+1))/10) + d - 1) % 7;
+          }
+          return (w + 7) % 7;
         },
         getWeekInChinese:function(){
           return SolarUtil.WEEK[this.getWeek()];
@@ -146,7 +239,7 @@
          * @param start 星期几作为一周的开始，1234560分别代表星期一至星期天
          */
         getSolarWeek:function(start){
-          return SolarWeek.fromDate(this._p.calendar,start);
+          return SolarWeek.fromYmd(this._p.year, this._p.month, this._p.day, start);
         },
         isLeapYear:function(){
           return SolarUtil.isLeapYear(this._p.year);
@@ -211,17 +304,13 @@
           return SolarUtil.XINGZUO[index];
         },
         toYmd:function(){
+          var m = this._p.month;
           var d = this._p.day;
-          if(this._p.year===1582&&this._p.month===10){
-            if(d>=5){
-              d += 10;
-            }
-          }
           var y = this._p.year + '';
           while (y.length < 4) {
             y = '0' + y;
           }
-          return [y,(this._p.month<10?'0':'')+this._p.month,(d<10?'0':'')+d].join('-');
+          return [y,(m<10?'0':'')+m,(d<10?'0':'')+d].join('-');
         },
         toYmdHms:function(){
           return this.toYmd()+' '+[(this._p.hour<10?'0':'')+this._p.hour,(this._p.minute<10?'0':'')+this._p.minute,(this._p.second<10?'0':'')+this._p.second].join(':');
@@ -242,36 +331,154 @@
           s += ' '+this.getXingZuo()+'座';
           return s;
         },
-        next:function(days, onlyWorkday){
-          var date = ExactDate.fromYmdHms(this._p.year,this._p.month,this._p.day,this._p.hour,this._p.minute,this._p.second);
-          if(0!=days){
-            if (!onlyWorkday){
-              date.setDate(date.getDate() + days);
-            }else{
-              var rest = Math.abs(days);
-              var add = days < 1 ? -1 : 1;
-              while(rest > 0){
-                date.setDate(date.getDate() + add);
-                var work = true;
-                var holiday = HolidayUtil.getHoliday(date.getFullYear(), date.getMonth() + 1, date.getDate());
-                if(!holiday){
-                  var week = date.getDay();
-                  if(0 === week || 6 === week){
-                    work = false;
-                  }
-                }else{
-                  work = holiday.isWork();
-                }
-                if(work){
-                  rest--;
-                }
+        nextYear:function(years){
+          var oy = years;
+          years *= 1;
+          if (isNaN(years)) {
+            throw new Error('wrong years ' + oy);
+          }
+          var y = this._p.year + years;
+          var m = this._p.month;
+          var d = this._p.day;
+          // 2月处理
+          if (2 === m) {
+            if (d > 28) {
+              if (!SolarUtil.isLeapYear(y)) {
+                d = 28;
               }
             }
           }
-          return _fromDate(date);
+          if (1582 === y && 10 === m) {
+            if (d > 4 && d < 15) {
+              d += 10;
+            }
+          }
+          return _fromYmdHms(y, m, d, this._p.hour, this._p.minute, this._p.second);
+        },
+        nextMonth:function(months){
+          var om = months;
+          months *= 1;
+          if (isNaN(months)) {
+            throw new Error('wrong months ' + om);
+          }
+          var month = SolarMonth.fromYm(this._p.year, this._p.month).next(months);
+          var y = month.getYear();
+          var m = month.getMonth();
+          var d = this._p.day;
+          // 2月处理
+          if (2 === m) {
+            if (d > 28) {
+              if (!SolarUtil.isLeapYear(y)) {
+                d = 28;
+              }
+            }
+          }
+          if (1582 === y && 10 === m) {
+            if (d > 4 && d < 15) {
+              d += 10;
+            }
+          }
+          return _fromYmdHms(y, m, d, this._p.hour, this._p.minute, this._p.second);
+        },
+        nextDay:function(days){
+          var od = days;
+          days *= 1;
+          if (isNaN(days)) {
+            throw new Error('wrong days ' + od);
+          }
+          var y = this._p.year;
+          var m = this._p.month;
+          var d = this._p.day;
+          if (1582 === y && 10 === m) {
+            if (d > 4) {
+              d -= 10
+            }
+          }
+          if (days > 0) {
+            d += days;
+            var daysInMonth = SolarUtil.getDaysOfMonth(y, m);
+            while (d > daysInMonth) {
+              d -= daysInMonth;
+              m++;
+              if (m > 12) {
+                m = 1;
+                y++;
+              }
+              daysInMonth = SolarUtil.getDaysOfMonth(y, m);
+            }
+          } else if (days < 0) {
+            while (d + days <= 0) {
+              m--;
+              if (m < 1) {
+                m = 12;
+                y--;
+              }
+              d += SolarUtil.getDaysOfMonth(y, m);
+            }
+            d += days;
+          }
+          if (1582 === y && 10 === m) {
+            if (d > 4) {
+              d += 10;
+            }
+          }
+          return _fromYmdHms(y, m, d, this._p.hour, this._p.minute, this._p.second);
+        },
+        nextWorkday:function(days){
+          var od = days;
+          days *= 1;
+          if (isNaN(days)) {
+            throw new Error('wrong days ' + od);
+          }
+          var solar = _fromYmdHms(this._p.year, this._p.month, this._p.day, this._p.hour, this._p.minute, this._p.second);
+          if (days !== 0) {
+            var rest = Math.abs(days);
+            var add = days < 1 ? -1 : 1;
+            while (rest > 0) {
+              solar = solar.next(add);
+              var work = true;
+              var holiday = HolidayUtil.getHoliday(solar.getYear(), solar.getMonth(), solar.getDay());
+              if (!holiday) {
+                var week = solar.getWeek();
+                if (0 === week || 6 === week) {
+                  work = false;
+                }
+              } else {
+                work = holiday.isWork();
+              }
+              if (work) {
+                rest -= 1;
+              }
+            }
+          }
+          return solar;
+        },
+        next:function(days, onlyWorkday){
+          if (onlyWorkday) {
+            return this.nextWorkday(days);
+          }
+          return this.nextDay(days);
+        },
+        nextHour:function(hours){
+          var oh = hours;
+          hours *= 1;
+          if (isNaN(hours)) {
+            throw new Error('wrong hours ' + oh);
+          }
+          var h = this._p.hour + hours;
+          var n = h < 0 ? -1 : 1;
+          var hour = Math.abs(h);
+          var days = Math.floor(hour / 24) * n;
+          hour = (hour % 24) * n;
+          if (hour < 0) {
+            hour += 24;
+            days--;
+          }
+          var solar = this.next(days);
+          return _fromYmdHms(solar.getYear(), solar.getMonth(), solar.getDay(), hour, solar.getMinute(), solar.getSecond());
         },
         getLunar:function(){
-          return Lunar.fromDate(this._p.calendar);
+          return Lunar.fromSolar(this);
         },
         getJulianDay:function(){
           var y = this._p.year;
@@ -291,75 +498,69 @@
             n = 2 - n + Math.floor(n / 4);
           }
           return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + n - 1524.5;
-        },
-        getCalendar:function(){
-          return this._p.calendar;
         }
       };
     };
     var _fromBaZi=function(yearGanZhi,monthGanZhi,dayGanZhi,timeGanZhi,sect,baseYear){
-      sect = (1==sect)?1:2;
-      baseYear = (undefined==baseYear)?1900:baseYear;
+      sect *= 1;
+      if(isNaN(sect)){
+        sect = 2;
+      }
+      if (1 !== sect) {
+        sect = 2;
+      }
+      baseYear *= 1;
+      if(isNaN(baseYear)){
+        baseYear = 1900;
+      }
       var l = [];
+      var years = [];
       var today = _fromDate(new Date());
-      var lunar = today.getLunar();
-      var offsetYear = LunarUtil.getJiaZiIndex(lunar.getYearInGanZhiExact())-LunarUtil.getJiaZiIndex(yearGanZhi);
+      var offsetYear = LunarUtil.getJiaZiIndex(today.getLunar().getYearInGanZhiExact())-LunarUtil.getJiaZiIndex(yearGanZhi);
       if(offsetYear<0){
-        offsetYear = offsetYear+60;
+        offsetYear += 60;
       }
-      var startYear = lunar.getYear() - offsetYear;
-      var hour = 0;
+      var startYear = today.getYear() - offsetYear - 1;
+      var minYear = baseYear - 2;
+      while (startYear >= minYear) {
+        years.push(startYear);
+        startYear -= 60;
+      }
+      var hours = [];
       var timeZhi = timeGanZhi.substr(1);
-      for(var i=0,j=LunarUtil.ZHI.length;i<j;i++){
+      var i = 1;
+      var j = LunarUtil.ZHI.length;
+      for(;i<j;i++){
         if(LunarUtil.ZHI[i]===timeZhi){
-          hour = (i-1)*2;
+          hours.push((i-1)*2);
+          break;
         }
       }
-      while(startYear>=baseYear){
-        var year = startYear-1;
-        var counter = 0;
-        var month = 12;
-        var day;
-        var solar;
-        var found = false;
-        while (counter < 15) {
-          if(year>=baseYear){
-            day = 1;
-            solar = _fromYmdHms(year, month, day, hour, 0, 0);
-            lunar = solar.getLunar();
-            if(lunar.getYearInGanZhiExact()===yearGanZhi && lunar.getMonthInGanZhiExact()===monthGanZhi){
-              found = true;
-              break;
-            }
-          }
-          month++;
-          if(month > 12){
+      if ('子' === timeZhi) {
+        hours.push(23);
+      }
+      j = years.length;
+      for (var m = 0, n = hours.length; m < n; m++) {
+        for (i = 0;i < j; i++) {
+          var y = years[i];
+          var maxYear = y + 3;
+          var year = y;
+          var month = 11;
+          if (year < baseYear) {
+            year = baseYear;
             month = 1;
-            year++;
           }
-          counter++;
-        }
-        if(found){
-          counter = 0;
-          month--;
-          if(month<1){
-            month = 12;
-            year--;
-          }
-          day = 1;
-          solar = _fromYmdHms(year, month, day, hour, 0, 0);
-          while (counter < 61) {
-            lunar = solar.getLunar();
-            var dgz = (2==sect)?lunar.getDayInGanZhiExact2():lunar.getDayInGanZhiExact();
-            if (lunar.getYearInGanZhiExact()===yearGanZhi && lunar.getMonthInGanZhiExact()===monthGanZhi && dgz===dayGanZhi && lunar.getTimeInGanZhi()===timeGanZhi) {
+          var solar = _fromYmdHms(year, month, 1, hours[m], 0, 0);
+          while (solar.getYear() <= maxYear) {
+            var lunar = solar.getLunar();
+            var dgz = (2 === sect) ? lunar.getDayInGanZhiExact2() : lunar.getDayInGanZhiExact();
+            if (lunar.getYearInGanZhiExact() === yearGanZhi && lunar.getMonthInGanZhiExact() === monthGanZhi && dgz === dayGanZhi && lunar.getTimeInGanZhi() === timeGanZhi) {
               l.push(solar);
               break;
             }
             solar = solar.next(1);
-            counter++;
           }
         }
-        startYear -= 60;
       }
       return l;
     };
@@ -411,7 +612,7 @@
 
       //获取立春的阳历时刻
       var liChun = o['jieQi']['立春'];
-      if (liChun.getYear() != solarYear) {
+      if (liChun.getYear() !== solarYear) {
         liChun = o['jieQi']['LI_CHUN'];
       }
       var liChunYmd = liChun.toYmd();
@@ -529,20 +730,15 @@
       _computeWeek(o, solar);
       return o;
     };
-    var _fromDate = function(date){
-      var currentYear = date.getFullYear();
-      var currentMonth = date.getMonth() + 1;
-      var currentDay = date.getDate();
+    var _fromSolar = function(solar){
       var lunarYear = 0;
       var lunarMonth = 0;
       var lunarDay = 0;
-      var ly = LunarYear.fromYear(currentYear);
+      var ly = LunarYear.fromYear(solar.getYear());
       var lms = ly.getMonths();
       for (var i = 0, j = lms.length; i < j; i++) {
         var m = lms[i];
-        // 初一
-        var firstDay = Solar.fromJulianDay(m.getFirstJulianDay());
-        var days = ExactDate.getDaysBetweenYmd(firstDay.getYear(), firstDay.getMonth(), firstDay.getDay(), currentYear, currentMonth, currentDay);
+        var days = solar.subtract(Solar.fromJulianDay(m.getFirstJulianDay()));
         if (days < m.getDayCount()) {
           lunarYear = m.getYear();
           lunarMonth = m.getMonth();
@@ -550,23 +746,68 @@
           break;
         }
       }
-      return _new(lunarYear, lunarMonth, lunarDay, date.getHours(), date.getMinutes(), date.getSeconds(), Solar.fromDate(date), ly);
+      return _new(lunarYear, lunarMonth, lunarDay, solar.getHour(), solar.getMinute(), solar.getSecond(), solar, ly);
+    };
+    var _fromDate = function(date){
+      return _fromSolar(Solar.fromDate(date));
     };
     var _fromYmdHms = function(lunarYear,lunarMonth,lunarDay,hour,minute,second) {
+      var oy = lunarYear;
+      var om = lunarMonth;
+      var od = lunarDay;
+      var oh = hour;
+      var oi = minute;
+      var os = second;
+      lunarYear *= 1;
+      if(isNaN(lunarYear)){
+        throw new Error('wrong lunar year '+oy);
+      }
+      lunarMonth *= 1;
+      if(isNaN(lunarMonth)){
+        throw new Error('wrong lunar month '+om);
+      }
+      lunarDay *= 1;
+      if(isNaN(lunarDay)){
+        throw new Error('wrong lunar day '+od);
+      }
+      hour *= 1;
+      if(isNaN(hour)){
+        throw new Error('wrong hour '+oh);
+      }
+      minute *= 1;
+      if(isNaN(minute)){
+        throw new Error('wrong minute '+oi);
+      }
+      second *= 1;
+      if(isNaN(second)){
+        throw new Error('wrong second '+os);
+      }
+      if(hour<0||hour>23){
+        throw new Error('wrong hour '+hour);
+      }
+      if(minute<0||minute>59){
+        throw new Error('wrong minute '+minute);
+      }
+      if(second<0||second>59){
+        throw new Error('wrong second '+second);
+      }
       var y = LunarYear.fromYear(lunarYear);
       var m = y.getMonth(lunarMonth);
       if (null == m) {
-        throw 'wrong lunar year '+lunarYear+' month '+lunarMonth;
+        throw new Error('wrong lunar year '+lunarYear+' month '+lunarMonth);
       }
       if (lunarDay < 1) {
-        throw 'lunar day must bigger than 0';
+        throw new Error('lunar day must bigger than 0');
       }
       var days = m.getDayCount();
       if (lunarDay > days) {
-        throw 'only '+days+' days in lunar year '+lunarYear+' month '+lunarMonth;
+        throw new Error('only '+days+' days in lunar year '+lunarYear+' month '+lunarMonth);
       }
       var noon = Solar.fromJulianDay(m.getFirstJulianDay() + lunarDay - 1);
       var solar = Solar.fromYmdHms(noon.getYear(), noon.getMonth(), noon.getDay(), hour, minute, second);
+      if (noon.getYear() !== lunarYear) {
+        y = LunarYear.fromYear(noon.getYear());
+      }
       return _new(lunarYear, lunarMonth, lunarDay, hour, minute, second, solar, y);
     };
     var _new = function(year,month,day,hour,minute,second,solar,ly){
@@ -777,7 +1018,7 @@
           return LunarUtil.POSITION_DESC[this.getTimePositionCai()];
         },
         _getDayPositionTaiSui:function(dayInGanZhi, yearZhiIndex){
-          var p = '';
+          var p;
           switch (dayInGanZhi) {
             case '甲子':
             case '乙丑':
@@ -846,7 +1087,7 @@
           return LunarUtil.POSITION_DESC[this.getDayPositionTaiSui(sect)];
         },
         _getMonthPositionTaiSui:function(monthZhiIndex, monthGanIndex){
-          var p = '';
+          var p;
           var m = monthZhiIndex - LunarUtil.BASE_MONTH_ZHI_INDEX;
           if (m < 0) {
             m += 12;
@@ -1068,7 +1309,7 @@
           if(f){
             l.push(f);
           }
-          if (Math.abs(this._p.month) === 12 && this._p.day >= 29 && this._p.year != this.next(1).getYear()) {
+          if (Math.abs(this._p.month) === 12 && this._p.day >= 29 && this._p.year !== this.next(1).getYear()) {
             l.push('除夕');
           }
           return l;
@@ -1200,10 +1441,18 @@
           return LunarUtil.POSITION_TAI_MONTH[m-1];
         },
         getDayYi:function(sect){
-          return LunarUtil.getDayYi(2 == sect ? this.getMonthInGanZhiExact() : this.getMonthInGanZhi(), this.getDayInGanZhi());
+          sect *= 1;
+          if(isNaN(sect)){
+            sect = 2;
+          }
+          return LunarUtil.getDayYi(2 === sect ? this.getMonthInGanZhiExact() : this.getMonthInGanZhi(), this.getDayInGanZhi());
         },
         getDayJi:function(sect){
-          return LunarUtil.getDayJi(2 == sect ? this.getMonthInGanZhiExact() : this.getMonthInGanZhi(), this.getDayInGanZhi());
+          sect *= 1;
+          if(isNaN(sect)){
+            sect = 2;
+          }
+          return LunarUtil.getDayJi(2 === sect ? this.getMonthInGanZhiExact() : this.getMonthInGanZhi(), this.getDayInGanZhi());
         },
         getDayJiShen:function(){
           return LunarUtil.getDayJiShen(this.getMonth(),this.getDayInGanZhi());
@@ -1221,13 +1470,16 @@
           return LunarUtil.YUE_XIANG[this._p.day];
         },
         _getYearNineStar:function(yearInGanZhi){
-          var index = LunarUtil.getJiaZiIndex(yearInGanZhi) + 1;
-          var yearOffset = 0;
-          if (index != LunarUtil.getJiaZiIndex(this.getYearInGanZhi()) + 1) {
-            yearOffset = -1;
+          var indexExact = LunarUtil.getJiaZiIndex(yearInGanZhi) + 1;
+          var index = LunarUtil.getJiaZiIndex(this.getYearInGanZhi()) + 1;
+          var yearOffset = indexExact - index;
+          if (yearOffset > 1) {
+            yearOffset -= 60;
+          } else if (yearOffset < -1) {
+            yearOffset += 60;
           }
           var yuan = Math.floor((this._p.year + yearOffset + 2696) / 60) % 3;
-          var offset = (62 + yuan * 3 - index) % 9;
+          var offset = (62 + yuan * 3 - indexExact) % 9;
           if(0 === offset){
             offset = 9;
           }
@@ -1305,13 +1557,13 @@
           var solarNiZiYmd = solarNiZi.toYmd();
           var offset = 0;
           if (solarYmd >= solarShunBaiYmd && solarYmd < solarNiZiYmd) {
-            offset = ExactDate.getDaysBetween(solarShunBai.getCalendar(), this.getSolar().getCalendar()) % 9;
+            offset = this._p.solar.subtract(solarShunBai) % 9;
           } else if (solarYmd >= solarNiZiYmd && solarYmd < solarShunBaiYmd2){
-            offset = 8 - (ExactDate.getDaysBetween(solarNiZi.getCalendar(), this.getSolar().getCalendar()) % 9);
+            offset = 8 - (this._p.solar.subtract(solarNiZi) % 9);
           } else if (solarYmd >= solarShunBaiYmd2) {
-            offset = ExactDate.getDaysBetween(solarShunBai2.getCalendar(), this.getSolar().getCalendar()) % 9;
+            offset = this._p.solar.subtract(solarShunBai2) % 9;
           } else if (solarYmd < solarShunBaiYmd) {
-            offset = (8 + ExactDate.getDaysBetween(this.getSolar().getCalendar(), solarShunBai.getCalendar())) % 9;
+            offset = (8 + solarShunBai.subtract(this._p.solar)) % 9;
           }
           return NineStar.fromIndex(offset);
         },
@@ -1373,11 +1625,9 @@
         _buildJieQi:function(name, solar){
           var jie=false;
           var qi=false;
-          var i;
-          var j;
-          for(i=0,j=Lunar.JIE_QI.length;i<j;i++){
+          for(var i=0,j=Lunar.JIE_QI.length;i<j;i++){
             if(Lunar.JIE_QI[i]===name){
-              if(i%2==0){
+              if(i%2===0){
                 qi = true;
               }else{
                 jie = true;
@@ -1589,26 +1839,25 @@
           };
         },
         getShuJiu:function(){
-          var currentCalendar = ExactDate.fromYmd(this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
+          var currentDay = Solar.fromYmd(this._p.solar.getYear(), this._p.solar.getMonth(), this._p.solar.getDay());
           var start = this._p.jieQi['DONG_ZHI'];
-          var startCalendar = ExactDate.fromYmd(start.getYear(),start.getMonth(),start.getDay());
-          if (currentCalendar < startCalendar) {
+          var startDay = Solar.fromYmd(start.getYear(), start.getMonth(), start.getDay());
+          if (currentDay.isBefore(startDay)) {
             start = this._p.jieQi['冬至'];
-            startCalendar = ExactDate.fromYmd(start.getYear(),start.getMonth(),start.getDay());
+            startDay = Solar.fromYmd(start.getYear(), start.getMonth(), start.getDay());
           }
-          var endCalendar = ExactDate.fromYmd(start.getYear(),start.getMonth(),start.getDay());
-          endCalendar.setDate(endCalendar.getDate() + 81);
-          if (currentCalendar < startCalendar || currentCalendar >= endCalendar) {
+          var endDay = Solar.fromYmd(start.getYear(), start.getMonth(), start.getDay()).next(81);
+          if (currentDay.isBefore(startDay) || (!currentDay.isBefore(endDay))) {
             return null;
           }
-          var days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
+          var days = currentDay.subtract(startDay);
           return this._buildNameAndIndex(LunarUtil.NUMBER[Math.floor(days / 9) + 1] + '九', days % 9 + 1);
         },
         getFu:function(){
-          var currentCalendar = ExactDate.fromYmd(this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
+          var currentDay = Solar.fromYmd(this._p.solar.getYear(), this._p.solar.getMonth(), this._p.solar.getDay());
           var xiaZhi = this._p.jieQi['夏至'];
           var liQiu = this._p.jieQi['立秋'];
-          var startCalendar = ExactDate.fromYmd(xiaZhi.getYear(),xiaZhi.getMonth(),xiaZhi.getDay());
+          var startDay = Solar.fromYmd(xiaZhi.getYear(), xiaZhi.getMonth(), xiaZhi.getDay());
 
           // 第1个庚日
           var add = 6 - xiaZhi.getLunar().getDayGanIndex();
@@ -1617,34 +1866,34 @@
           }
           // 第3个庚日，即初伏第1天
           add += 20;
-          startCalendar.setDate(startCalendar.getDate() + add);
+          startDay = startDay.next(add);
 
           // 初伏以前
-          if (currentCalendar < startCalendar) {
+          if (currentDay.isBefore(startDay)) {
             return null;
           }
 
-          var days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
+          var days = currentDay.subtract(startDay);
           if (days < 10) {
             return this._buildNameAndIndex('初伏', days + 1);
           }
 
           // 第4个庚日，中伏第1天
-          startCalendar.setDate(startCalendar.getDate() + 10);
+          startDay = startDay.next(10);
 
-          days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
+          days = currentDay.subtract(startDay);
           if (days < 10) {
             return this._buildNameAndIndex('中伏', days + 1);
           }
 
           // 第5个庚日，中伏第11天或末伏第1天
-          startCalendar.setDate(startCalendar.getDate() + 10);
+          startDay = startDay.next(10);
 
-          var liQiuCalendar = ExactDate.fromYmd(liQiu.getYear(),liQiu.getMonth(),liQiu.getDay());
+          var liQiuDay = Solar.fromYmd(liQiu.getYear(),liQiu.getMonth(),liQiu.getDay());
 
-          days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
+          days = currentDay.subtract(startDay);
           // 末伏
-          if (liQiuCalendar <= startCalendar) {
+          if (!liQiuDay.isAfter(startDay)) {
             if (days < 10) {
               return this._buildNameAndIndex('末伏', days + 1);
             }
@@ -1654,8 +1903,8 @@
               return this._buildNameAndIndex('中伏', days + 11);
             }
             // 末伏第1天
-            startCalendar.setDate(startCalendar.getDate() + 10);
-            days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
+            startDay = startDay.next(10);
+            days = currentDay.subtract(startDay);
             if (days < 10) {
               return this._buildNameAndIndex('末伏', days + 1);
             }
@@ -1675,23 +1924,24 @@
               break;
             }
           }
-          var currentCalendar = ExactDate.fromYmd(this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
+          var current = Solar.fromYmd(this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
           var startSolar = jieQi.getSolar();
-          var startCalendar = ExactDate.fromYmd(startSolar.getYear(),startSolar.getMonth(),startSolar.getDay());
-          var days = ExactDate.getDaysBetween(startCalendar, currentCalendar);
-          return LunarUtil.WU_HOU[(offset*3+Math.floor(days/5)) % LunarUtil.WU_HOU.length];
+          var start = Solar.fromYmd(startSolar.getYear(),startSolar.getMonth(),startSolar.getDay());
+          var index = Math.floor(current.subtract(start) / 5);
+          if (index > 2) {
+            index = 2;
+          }
+          return LunarUtil.WU_HOU[(offset * 3 + index) % LunarUtil.WU_HOU.length];
         },
         getHou:function(){
           var jieQi = this.getPrevJieQi(true);
-          var name = jieQi.getName();
-          var startSolar = jieQi.getSolar();
-          var days = ExactDate.getDaysBetweenYmd(startSolar.getYear(),startSolar.getMonth(),startSolar.getDay(), this._p.solar.getYear(),this._p.solar.getMonth(),this._p.solar.getDay());
+          var days = this._p.solar.subtract(jieQi.getSolar());
           var max = LunarUtil.HOU.length - 1;
           var offset = Math.floor(days / 5);
           if (offset > max) {
             offset = max;
           }
-          return name + ' ' + LunarUtil.HOU[offset];
+          return jieQi.getName() + ' ' + LunarUtil.HOU[offset];
         },
         getDayLu:function(){
           var gan = LunarUtil.LU[this.getDayGan()];
@@ -1719,21 +1969,41 @@
       JIE_QI_IN_USE: ['DA_XUE', '冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', 'DONG_ZHI', 'XIAO_HAN', 'DA_HAN', 'LI_CHUN', 'YU_SHUI', 'JING_ZHE'],
       fromYmdHms:function(y,m,d,hour,minute,second){return _fromYmdHms(y,m,d,hour,minute,second);},
       fromYmd:function(y,m,d){return _fromYmdHms(y,m,d,0,0,0);},
+      fromSolar:function(solar){return _fromSolar(solar);},
       fromDate:function(date){return _fromDate(date);}
     };
   })();
   var SolarWeek = (function(){
     var _fromDate = function(date,start){
-      return _fromYmd(date.getFullYear(),date.getMonth()+1,date.getDate(),start);
+      var solar = Solar.fromDate(date);
+      return _fromYmd(solar.getYear(),solar.getMonth(), solar.getDay(), start);
     };
     var _fromYmd = function(y,m,d,start){
+      var oy = y;
+      var om = m;
+      var od = d;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
+      m *= 1;
+      if(isNaN(m)){
+        throw new Error('wrong solar month '+om);
+      }
+      d *= 1;
+      if(isNaN(d)){
+        throw new Error('wrong solar day '+od);
+      }
+      start *= 1;
+      if(isNaN(start)){
+        start = 0;
+      }
       return {
         _p:{
           year:y,
           month:m,
           day:d,
-          start:start,
-          calendar:ExactDate.fromYmd(y,m,d)
+          start:start
         },
         getYear:function(){
           return this._p.year;
@@ -1752,9 +2022,7 @@
          * @return number 周序号，从1开始
          */
         getIndex:function(){
-          var firstDate = ExactDate.fromYmd(this._p.year,this._p.month,1);
-          var firstDayWeek = firstDate.getDay();
-          var offset = firstDayWeek - this._p.start;
+          var offset = Solar.fromYmd(this._p.year,this._p.month,1).getWeek() - this._p.start;
           if(offset < 0) {
             offset += 7;
           }
@@ -1765,9 +2033,7 @@
          * @return number 周序号，从1开始
          */
         getIndexInYear:function(){
-          var firstDate = ExactDate.fromYmd(this._p.year, 1, 1);
-          var firstDayWeek = firstDate.getDay();
-          var offset = firstDayWeek - this._p.start;
+          var offset = Solar.fromYmd(this._p.year,1,1).getWeek() - this._p.start;
           if(offset < 0) {
             offset += 7;
           }
@@ -1779,52 +2045,56 @@
          * @param separateMonth 是否按月单独计算
          * @return object 推移后的阳历周
          */
-        next:function(weeks,separateMonth){
-          if(0===weeks){
-            return _fromYmd(this._p.year,this._p.month,this._p.day,this._p.start);
+        next: function (weeks, separateMonth) {
+          var ow = weeks;
+          weeks *= 1;
+          if(isNaN(weeks)){
+            throw new Error('wrong weeks ' + ow);
           }
-          var date;
-          if(separateMonth){
+          var start = this._p.start;
+          if (0 === weeks) {
+            return _fromYmd(this._p.year, this._p.month, this._p.day, start);
+          }
+          var solar = Solar.fromYmd(this._p.year, this._p.month, this._p.day);
+          if (separateMonth) {
             var n = weeks;
-            date = ExactDate.fromYmd(this._p.year,this._p.month,this._p.day);
-            var week = _fromDate(date,this._p.start);
+            var week = _fromYmd(this._p.year, this._p.month, this._p.day, start);
             var month = this._p.month;
-            var plus = n>0;
-            while(0!==n){
-              date.setDate(date.getDate()+(plus?7:-7));
-              week = _fromDate(date,this._p.start);
+            var plus = n > 0;
+            while (0 !== n) {
+              solar = solar.next(plus ? 7 : -7);
+              week = _fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
               var weekMonth = week.getMonth();
-              if(month!==weekMonth){
+              if (month !== weekMonth) {
                 var index = week.getIndex();
-                if(plus){
-                  if(1===index){
+                if (plus) {
+                  if (1 === index) {
                     var firstDay = week.getFirstDay();
-                    week = _fromYmd(firstDay.getYear(),firstDay.getMonth(),firstDay.getDay(),this._p.start);
+                    week = _fromYmd(firstDay.getYear(), firstDay.getMonth(), firstDay.getDay(), start);
                     weekMonth = week.getMonth();
-                  }else{
-                    date = ExactDate.fromYmd(week.getYear(),week.getMonth(),1);
-                    week = _fromDate(date,this._p.start);
+                  } else {
+                    solar = Solar.fromYmd(week.getYear(), week.getMonth(), 1);
+                    week = _fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
                   }
-                }else{
-                  var size = SolarUtil.getWeeksOfMonth(week.getYear(),week.getMonth(),this._p.start);
-                  if(size===index){
+                } else {
+                  var size = SolarUtil.getWeeksOfMonth(week.getYear(), week.getMonth(), start);
+                  if (size === index) {
                     var lastDay = week.getFirstDay().next(6);
-                    week = _fromYmd(lastDay.getYear(),lastDay.getMonth(),lastDay.getDay(),this._p.start);
+                    week = _fromYmd(lastDay.getYear(), lastDay.getMonth(), lastDay.getDay(), start);
                     weekMonth = week.getMonth();
-                  }else{
-                    date = ExactDate.fromYmd(week.getYear(),week.getMonth(),SolarUtil.getDaysOfMonth(week.getYear(),week.getMonth()));
-                    week = _fromDate(date,this._p.start);
+                  } else {
+                    solar = Solar.fromYmd(week.getYear(), week.getMonth(), SolarUtil.getDaysOfMonth(week.getYear(), week.getMonth()));
+                    week = _fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
                   }
                 }
                 month = weekMonth;
               }
-              n-=plus?1:-1;
+              n -= plus ? 1 : -1;
             }
             return week;
-          }else{
-            date = ExactDate.fromYmd(this._p.year,this._p.month,this._p.day);
-            date.setDate(date.getDate()+weeks*7);
-            return _fromDate(date,this._p.start);
+          } else {
+            solar = solar.next(weeks * 7);
+            return _fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
           }
         },
         /**
@@ -1832,13 +2102,12 @@
          * @return object 本周第一天的阳历日期
          */
         getFirstDay:function(){
-          var date = ExactDate.fromYmd(this._p.year,this._p.month,this._p.day);
-          var prev = date.getDay()-this._p.start;
-          if(prev<0){
+          var solar = Solar.fromYmd(this._p.year, this._p.month, this._p.day);
+          var prev = solar.getWeek() - this._p.start;
+          if(prev < 0){
             prev += 7;
           }
-          date.setDate(date.getDate()-prev);
-          return Solar.fromDate(date);
+          return solar.next(-prev);
         },
         /**
          * 获取本周第一天的阳历日期（仅限当月）
@@ -1913,14 +2182,24 @@
   })();
   var SolarMonth = (function(){
     var _fromDate = function(date){
-      return _fromYm(date.getFullYear(),date.getMonth()+1);
+      var solar = Solar.fromDate(date);
+      return _fromYm(solar.getYear(),solar.getMonth());
     };
     var _fromYm = function(y,m){
+      var oy = y;
+      var om = m;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
+      m *= 1;
+      if(isNaN(m)){
+        throw new Error('wrong solar month '+om);
+      }
       return {
         _p:{
           year:y,
-          month:m,
-          calendar:ExactDate.fromYmd(y,m,1)
+          month:m
         },
         getYear:function(){
           return this._p.year;
@@ -1929,9 +2208,23 @@
           return this._p.month;
         },
         next:function(months){
-          var date = ExactDate.fromYmd(this._p.year,this._p.month,1);
-          date.setMonth(date.getMonth()+months);
-          return _fromDate(date);
+          var om = months;
+          months *= 1;
+          if(isNaN(months)){
+            throw new Error('wrong months ' + om);
+          }
+          var n = months < 0 ? -1 : 1;
+          var m = Math.abs(months);
+          var y = this._p.year + Math.floor(m / 12) * n;
+          m = this._p.month + m % 12 * n;
+          if (m > 12) {
+            m -= 12;
+            y++;
+          } else if (m < 1) {
+            m += 12;
+            y--;
+          }
+          return _fromYm(y, m);
         },
         getDays:function(){
           var l = [];
@@ -1944,23 +2237,19 @@
           return l;
         },
         getWeeks:function(start){
+          start *= 1;
+          if(isNaN(start)){
+            start = 0;
+          }
           var l = [];
-          var cy = this._p.year;
-          var cm = this._p.month;
-          var weeks = SolarUtil.getWeeksOfMonth(cy, cm, start);
-          var days = SolarUtil.getDaysOfMonth(cy, cm);
-          for(var i = 0;i<weeks;i++){
-            var y = cy;
-            var m = cm;
-            var d = 1 + i * 7;
-            if (d > days) {
-              d -= days;
-              m++;
-              if (m > 12) {
-                y++;
-              }
+          var week = SolarWeek.fromYmd(this._p.year, this._p.month, 1, start);
+          while (true) {
+            l.push(week);
+            week = week.next(1, false);
+            var firstDay = week.getFirstDay();
+            if (firstDay.getYear() > this._p.year || firstDay.getMonth() > this._p.month) {
+              break;
             }
-            l.push(SolarWeek.fromYmd(y, m, d, start));
           }
           return l;
         },
@@ -1979,14 +2268,24 @@
   })();
   var SolarSeason = (function(){
     var _fromDate = function(date){
-      return _fromYm(date.getFullYear(),date.getMonth()+1);
+      var solar = Solar.fromDate(date);
+      return _fromYm(solar.getYear(),solar.getMonth());
     };
     var _fromYm = function(y,m){
+      var oy = y;
+      var om = m;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
+      m *= 1;
+      if(isNaN(m)){
+        throw new Error('wrong solar month '+om);
+      }
       return {
         _p:{
           year:y,
-          month:m,
-          calendar:ExactDate.fromYmd(y,m,1)
+          month:m
         },
         getYear:function(){
           return this._p.year;
@@ -2007,12 +2306,13 @@
          * @return object 推移后的季度
          */
         next:function(seasons){
-          if(0===seasons){
-            return _fromYm(this._p.year,this._p.month);
+          var os = seasons;
+          seasons *= 1;
+          if(isNaN(seasons)){
+            throw new Error('wrong seasons ' + os);
           }
-          var date = ExactDate.fromYmd(this._p.year,this._p.month,1);
-          date.setMonth(date.getMonth()+3*seasons);
-          return _fromDate(date);
+          var month = SolarMonth.fromYm(this._p.year, this._p.month).next(3 * seasons);
+          return _fromYm(month.getYear(), month.getMonth());
         },
         /**
          * 获取本季度的月份
@@ -2041,14 +2341,24 @@
   })();
   var SolarHalfYear = (function(){
     var _fromDate = function(date){
-      return _fromYm(date.getFullYear(),date.getMonth()+1);
+      var solar = Solar.fromDate(date);
+      return _fromYm(solar.getYear(),solar.getMonth());
     };
     var _fromYm = function(y,m){
+      var oy = y;
+      var om = m;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
+      m *= 1;
+      if(isNaN(m)){
+        throw new Error('wrong solar month '+om);
+      }
       return {
         _p:{
           year:y,
-          month:m,
-          calendar:ExactDate.fromYmd(y,m,1)
+          month:m
         },
         getYear:function(){
           return this._p.year;
@@ -2069,12 +2379,13 @@
          * @return object 推移后的半年
          */
         next:function(halfYears){
-          if(0===halfYears){
-            return _fromYm(this._p.year,this._p.month);
+          var oh = halfYears;
+          halfYears *= 1;
+          if(isNaN(halfYears)){
+            throw new Error('wong halfYears ' + oh);
           }
-          var date = ExactDate.fromYmd(this._p.year,this._p.month,1);
-          date.setMonth(date.getMonth()+6*halfYears);
-          return _fromDate(date);
+          var month = SolarMonth.fromYm(this._p.year, this._p.month).next(6 * halfYears);
+          return _fromYm(month.getYear(), month.getMonth());
         },
         /**
          * 获取本半年的月份
@@ -2103,21 +2414,28 @@
   })();
   var SolarYear = (function(){
     var _fromDate = function(date){
-      return _fromYear(date.getFullYear());
+      return _fromYear(Solar.fromDate(date).getYear());
     };
     var _fromYear = function(y){
+      var oy = y;
+      y *= 1;
+      if(isNaN(y)){
+        throw new Error('wrong solar year '+oy);
+      }
       return {
         _p:{
-          year:y,
-          calendar:ExactDate.fromYmd(y,1,1)
+          year:y
         },
         getYear:function(){
           return this._p.year;
         },
         next:function(years){
-          var date = ExactDate.fromYmd(this._p.year,1,1);
-          date.setFullYear(date.getFullYear()+years);
-          return _fromDate(date);
+          var oy = years;
+          years *= 1;
+          if(isNaN(years)){
+            throw new Error('wrong years ' + oy);
+          }
+          return _fromYear(this._p.year + years);
         },
         getMonths:function(){
           var l = [];
@@ -2160,6 +2478,11 @@
     };
     _initLeap();
     var _fromYear = function(lunarYear){
+      var oy = lunarYear;
+      lunarYear *= 1;
+      if(isNaN(lunarYear)){
+        throw new Error('wrong lunar year '+oy);
+      }
       var _y = (function(){
         var offset = lunarYear - 4;
         var yearGanIndex = offset % 10;
@@ -2190,8 +2513,33 @@
         getZhi:function(){return LunarUtil.ZHI[this._p.zhiIndex+1];},
         getGanZhi:function(){return this.getGan()+this.getZhi();},
         getJieQiJulianDays:function(){return this._p.jieQiJulianDays;},
+        getDayCount:function(){
+          var n = 0;
+          for (var i = 0, j = this._p.months.length; i < j; i++) {
+            var m = this._p.months[i];
+            if (m.getYear() === this._p.year) {
+              n += m.getDayCount();
+            }
+          }
+          return n;
+        },
+        getMonthsInYear:function(){
+          var l = [];
+          for (var i = 0, j = this._p.months.length; i < j; i++) {
+            var m = this._p.months[i];
+            if (m.getYear() === this._p.year) {
+              l.push(m);
+            }
+          }
+          return l;
+        },
         getMonths:function(){return this._p.months;},
         getMonth:function(lunarMonth){
+          var om = lunarMonth;
+          lunarMonth *= 1;
+          if(isNaN(lunarMonth)){
+            throw new Error('wrong lunarMonth ' + om);
+          }
           for (var i = 0, j = this._p.months.length; i < j; i++) {
             var m = this._p.months[i];
             if (m.getYear() === this._p.year && m.getMonth() === lunarMonth) {
@@ -2322,8 +2670,13 @@
         toFullString:function(){
           return this.getYear()+'年';
         },
-        next:function(n){
-          return LunarYear.fromYear(this._p.year + n);
+        next:function(years){
+          var oy = years;
+          years *= 1;
+          if(isNaN(years)){
+            throw new Error('wrong years ' + oy);
+          }
+          return LunarYear.fromYear(this._p.year + years);
         },
         _compute:function(){
           this._p.months = [];
@@ -2353,7 +2706,9 @@
           // 冬至前的初一
           var w = ShouXingUtil.calcShuo(jq[0]);
           if (w > jq[0]) {
-            w -= 29.5306;
+            if (currentYear !== 41 && currentYear !== 193 && currentYear !== 288 && currentYear !== 345 && currentYear !== 918 && currentYear !== 1013) {
+              w -= 29.5306;
+            }
           }
           // 递推每月初一
           for (i = 0; i < 16; i++) {
@@ -2364,39 +2719,40 @@
             dayCounts.push(Math.floor(hs[i + 1] - hs[i]));
           }
 
-          var currentYearLeap = _LEAP['_' + currentYear];
-          if (!currentYearLeap) {
-            currentYearLeap = -1;
-            if (hs[13] <= jq[24]) {
-              i = 1;
-              while (hs[i + 1] > jq[2 * i] && i < 13) {
-                i++;
+          var prevYear = currentYear - 1;
+          var leapYear = -1;
+          var leapIndex = -1;
+
+          var leap = _LEAP['_' + currentYear];
+          if (!leap) {
+            leap = _LEAP['_' + prevYear];
+            if (!leap) {
+              if (hs[13] <= jq[24]) {
+                i = 1;
+                while (hs[i + 1] > jq[2 * i] && i < 13) {
+                  i++;
+                }
+                leapYear = currentYear;
+                leapIndex = i;
               }
-              currentYearLeap = i;
+            } else {
+              leapYear = prevYear;
+              leapIndex = leap - 12;
             }
+          } else {
+            leapYear = currentYear;
+            leapIndex = leap;
           }
 
-          var prevYear = currentYear - 1;
-          var prevYearLeap = _LEAP['_' + prevYear];
-          prevYearLeap = prevYearLeap ? prevYearLeap - 12 : -1;
-
-          var y = this._p.year - 1;
+          var y = prevYear;
           var m = 11;
           for (i = 0, j = dayCounts.length; i < j; i++) {
             var cm = m;
-            var isNextLeap = false;
-            if (y === currentYear && i === currentYearLeap) {
+            if (y === leapYear && i === leapIndex) {
               cm = -cm;
-            } else if (y === prevYear && i === prevYearLeap) {
-              cm = -cm;
-            }
-            if (y === currentYear && i + 1 === currentYearLeap) {
-              isNextLeap = true;
-            } else if (y === prevYear && i + 1 === prevYearLeap) {
-              isNextLeap = true;
             }
             this._p.months.push(LunarMonth._(y, cm, dayCounts[i], hs[i] + Solar.J2000));
-            if (!isNextLeap) {
+            if (y !== leapYear || i + 1 !== leapIndex) {
               m++;
             }
             if (m === 13) {
@@ -2423,6 +2779,16 @@
   })();
   var LunarMonth = (function(){
     var _fromYm = function(lunarYear,lunarMonth){
+      var oy = lunarYear;
+      var om = lunarMonth;
+      lunarYear *= 1;
+      if(isNaN(lunarYear)){
+        throw new Error('wrong lunar year '+oy);
+      }
+      lunarMonth *= 1;
+      if(isNaN(lunarMonth)){
+        throw new Error('wrong lunar month '+om);
+      }
       return LunarYear.fromYear(lunarYear).getMonth(lunarMonth);
     };
     var _new = function(lunarYear, lunarMonth, dayCount, firstJulianDay){
@@ -2439,7 +2805,7 @@
         getFirstJulianDay:function(){return this._p.firstJulianDay;},
         isLeap:function(){return this._p.month<0;},
         getPositionTaiSui:function(){
-          var p = '';
+          var p;
           var m = Math.abs(this._p.month);
           switch(m) {
             case 1:
@@ -2480,7 +2846,12 @@
           return NineStar.fromIndex(offset);
         },
         next:function(n){
-          if (0 == n) {
+          var on = n;
+          n *= 1;
+          if(isNaN(n)){
+            throw new Error('wrong days ' + on);
+          }
+          if (0 === n) {
             return LunarMonth.fromYm(this._p.year, this._p.month);
           } else {
             var rest = Math.abs(n);
@@ -2595,7 +2966,7 @@
             m = n2;
           } else {
             m = Math.floor((3 * n * n0 / m0 + 0.5) + n1);
-            if (i != 0) {
+            if (i !== 0) {
               m += 3;
             }
             if (m > n2) {
@@ -2779,9 +3150,9 @@
           d = Math.floor(this.shuoLow(Math.floor((jd + pc - 2451551) / 29.5306) * Math.PI * 2) + 0.5);
           var from = Math.floor((jd - f2) / 29.5306);
           var n = this.SB.substr(from, 1);
-          if ('1' == n) {
+          if ('1' === n) {
             d += 1;
-          } else if ('2' == n) {
+          } else if ('2' === n) {
             d -= 1;
           }
         }
@@ -2798,33 +3169,125 @@
       OTHER_FESTIVAL:{'1-8':['周恩来逝世纪念日'],'1-10':['中国人民警察节','中国公安110宣传日'],'1-21':['列宁逝世纪念日'],'1-26':['国际海关日'],'2-2':['世界湿地日'],'2-4':['世界抗癌日'],'2-7':['京汉铁路罢工纪念'],'2-10':['国际气象节'],'2-19':['邓小平逝世纪念日'],'2-21':['国际母语日'],'2-24':['第三世界青年日'],'3-1':['国际海豹日'],'3-3':['全国爱耳日'],'3-5':['周恩来诞辰纪念日','中国青年志愿者服务日'],'3-6':['世界青光眼日'],'3-12':['孙中山逝世纪念日'],'3-14':['马克思逝世纪念日'],'3-17':['国际航海日'],'3-18':['全国科技人才活动日'],'3-21':['世界森林日','世界睡眠日'],'3-22':['世界水日'],'3-23':['世界气象日'],'3-24':['世界防治结核病日'],'4-2':['国际儿童图书日'],'4-7':['世界卫生日'],'4-22':['列宁诞辰纪念日'],'4-23':['世界图书和版权日'],'4-26':['世界知识产权日'],'5-3':['世界新闻自由日'],'5-5':['马克思诞辰纪念日'],'5-8':['世界红十字日'],'5-11':['世界肥胖日'],'5-25':['525心理健康节'],'5-27':['上海解放日'],'5-31':['世界无烟日'],'6-5':['世界环境日'],'6-6':['全国爱眼日'],'6-8':['世界海洋日'],'6-11':['中国人口日'],'6-14':['世界献血日'],'7-1':['香港回归纪念日'],'7-7':['中国人民抗日战争纪念日'],'7-11':['世界人口日'],'8-5':['恩格斯逝世纪念日'],'8-6':['国际电影节'],'8-12':['国际青年日'],'8-22':['邓小平诞辰纪念日'],'9-3':['中国抗日战争胜利纪念日'],'9-8':['世界扫盲日'],'9-9':['毛泽东逝世纪念日'],'9-14':['世界清洁地球日'],'9-18':['九一八事变纪念日'],'9-20':['全国爱牙日'],'9-21':['国际和平日'],'9-27':['世界旅游日'],'10-4':['世界动物日'],'10-10':['辛亥革命纪念日'],'10-13':['中国少年先锋队诞辰日'],'10-25':['抗美援朝纪念日'],'11-12':['孙中山诞辰纪念日'],'11-17':['国际大学生节'],'11-28':['恩格斯诞辰纪念日'],'12-1':['世界艾滋病日'],'12-12':['西安事变纪念日'],'12-13':['国家公祭日'],'12-26':['毛泽东诞辰纪念日']},
       WEEK_FESTIVAL:{'3-0-1':'全国中小学生安全教育日','5-2-0':'母亲节','6-3-0':'父亲节','11-4-4':'感恩节'},
       isLeapYear:function(year){return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);},
-      getDaysOfMonth:function(year,month){
+      getDaysOfMonth:function(year, month){
+        var oy = year;
+        var om = month;
+        year *= 1;
+        if(isNaN(year)){
+          throw new Error('wrong solar year '+oy);
+        }
+        month *= 1;
+        if(isNaN(month)){
+          throw new Error('wrong solar month '+om);
+        }
+        if (1582 === year && 10 === month) {
+          return 21;
+        }
         var m = month-1;
         var d = this.DAYS_OF_MONTH[m];
-        if(m===1&&this.isLeapYear(year)){
+        if (m === 1 && this.isLeapYear(year)) {
           d++;
         }
         return d;
       },
       getDaysOfYear:function(year){
+        var oy = year;
+        year *= 1;
+        if(isNaN(year)){
+          throw new Error('wrong solar year '+oy);
+        }
+        if (1582 === year) {
+          return 355;
+        }
         return this.isLeapYear(year) ? 366: 365;
       },
       getDaysInYear:function(year, month, day){
+        var oy = year;
+        var om = month;
+        var od = day;
+        year *= 1;
+        if(isNaN(year)){
+          throw new Error('wrong solar year '+oy);
+        }
+        month *= 1;
+        if(isNaN(month)){
+          throw new Error('wrong solar month '+om);
+        }
+        day *= 1;
+        if(isNaN(day)){
+          throw new Error('wrong solar day '+od);
+        }
         var days = 0;
         for (var i = 1; i < month; i++) {
           days += this.getDaysOfMonth(year, i);
         }
-        days += day;
-        if (1582 === year && 10 === month && day >= 15) {
-          days -= 10;
+        var d = day;
+        if (1582 === year && 10 === month) {
+          if (day >= 15) {
+            d -= 10;
+          } else if (day > 4) {
+            throw new Error('wrong solar year '+year+' month '+month+' day '+day);
+          }
         }
+        days += d;
         return days;
       },
-      getWeeksOfMonth:function(year,month,start){
-        var days = this.getDaysOfMonth(year,month);
-        var firstDate = ExactDate.fromYmd(year,month,1);
-        var firstDayWeek = firstDate.getDay();
-        return Math.ceil((days+firstDayWeek-start)/7);
+      getDaysBetween:function(ay, am, ad, by, bm, bd){
+        var oay = ay;
+        var oam = am;
+        var oad = ad;
+        var oby = by;
+        var obm = bm;
+        var obd = bd;
+        ay *= 1;
+        if(isNaN(ay)){
+          throw new Error('wrong solar year '+oay);
+        }
+        am *= 1;
+        if(isNaN(am)){
+          throw new Error('wrong solar month '+oam);
+        }
+        ad *= 1;
+        if(isNaN(ad)){
+          throw new Error('wrong solar day '+oad);
+        }
+        by *= 1;
+        if(isNaN(by)){
+          throw new Error('wrong solar year '+oby);
+        }
+        bm *= 1;
+        if(isNaN(bm)){
+          throw new Error('wrong solar month '+obm);
+        }
+        bd *= 1;
+        if(isNaN(bd)){
+          throw new Error('wrong solar day '+obd);
+        }
+
+        var n;
+        var days;
+        var i;
+        if (ay === by) {
+          n = this.getDaysInYear(by, bm, bd) - this.getDaysInYear(ay, am, ad);
+        } else if (ay > by) {
+          days = this.getDaysOfYear(by) - this.getDaysInYear(by, bm, bd);
+          for (i = by + 1; i < ay; i++) {
+            days += this.getDaysOfYear(i);
+          }
+          days += this.getDaysInYear(ay, am, ad);
+          n = -days;
+        } else {
+          days = this.getDaysOfYear(ay) - this.getDaysInYear(ay, am, ad);
+          for (i = ay + 1; i < by; i++) {
+            days += this.getDaysOfYear(i);
+          }
+          days += this.getDaysInYear(by, bm, bd);
+          n = days;
+        }
+        return n;
+      },
+      getWeeksOfMonth:function(year, month, start){
+        return Math.ceil((this.getDaysOfMonth(year, month) + Solar.fromYmd(year, month, 1).getWeek() - start)/7);
       }
     };
   })();
@@ -2913,7 +3376,7 @@
       },
       getJiaZiIndex:function(ganZhi){
         for(var i=0,j=this.JIA_ZI.length;i<j;i++){
-          if(this.JIA_ZI[i]==ganZhi){
+          if(this.JIA_ZI[i]===ganZhi){
             return i;
           }
         }
@@ -2945,7 +3408,7 @@
           var j;
           for (i = 0, j = months.length; i < j; i += 2) {
             m = months.substr(i, 2);
-            if (m==month) {
+            if (m===month) {
               matched = true;
               break;
             }
@@ -2985,7 +3448,7 @@
           var j;
           for (i = 0, j = months.length; i < j; i += 2) {
             m = months.substr(i, 2);
-            if (m==month) {
+            if (m===month) {
               matched = true;
               break;
             }
@@ -3126,7 +3589,7 @@
     var _SIZE = 18;
     var _ZERO='0'.charCodeAt(0);
     var _TAG_REMOVE = '~';
-    var _NAMES_IN_USE=_NAMES,_DATA='200112290020020101200112300020020101200201010120020101200201020120020101200201030120020101200202091020020212200202101020020212200202121120020212200202131120020212200202141120020212200202151120020212200202161120020212200202171120020212200202181120020212200204273020020501200204283020020501200205013120020501200205023120020501200205033120020501200205043120020501200205053120020501200205063120020501200205073120021001200209286020021001200209296020021001200210016120021001200210026120021001200210036120021001200210046120021001200210056120021001200210066120021001200210076120021001200301010120030101200302011120030201200302021120030201200302031120030201200302041120030201200302051120030201200302061120030201200302071120030201200302081020030201200302091020030201200304263020030501200304273020030501200305013120030501200305023120030501200305033120030501200305043120030501200305053120030501200305063120030501200305073120031001200309276020031001200309286020031001200310016120031001200310026120031001200310036120031001200310046120031001200310056120031001200310066120031001200310076120031001200401010120040101200401171020040122200401181020040122200401221120040122200401231120040122200401241120040122200401251120040122200401261120040122200401271120040122200401281120040122200405013120040501200405023120040501200405033120040501200405043120040501200405053120040501200405063120040501200405073120041001200405083020040501200405093020040501200410016120041001200410026120041001200410036120041001200410046120041001200410056120041001200410066120041001200410076120041001200410096020041001200410106020041001200501010120050101200501020120050101200501030120050101200502051020050209200502061020050209200502091120050209200502101120050209200502111120050209200502121120050209200502131120050209200502141120050209200502151120050209200504303020050501200505013120050501200505023120050501200505033120050501200505043120050501200505053120050501200505063120050501200505073120051001200505083020050501200510016120051001200510026120051001200510036120051001200510046120051001200510056120051001200510066120051001200510076120051001200510086020051001200510096020051001200512310020060101200601010120060101200601020120060101200601030120060101200601281020060129200601291120060129200601301120060129200601311120060129200602011120060129200602021120060129200602031120060129200602041120060129200602051020060129200604293020060501200604303020060501200605013120060501200605023120060501200605033120060501200605043120060501200605053120060501200605063120060501200605073120061001200609306020061001200610016120061001200610026120061001200610036120061001200610046120061001200610056120061001200610066120061001200610076120061001200610086020061001200612300020070101200612310020070101200701010120070101200701020120070101200701030120070101200702171020070218200702181120070218200702191120070218200702201120070218200702211120070218200702221120070218200702231120070218200702241120070218200702251020070218200704283020070501200704293020070501200705013120070501200705023120070501200705033120070501200705043120070501200705053120070501200705063120070501200705073120070501200709296020071001200709306020071001200710016120071001200710026120071001200710036120071001200710046120071001200710056120071001200710066120071001200710076120071001200712290020080101200712300120080101200712310120080101200801010120080101200802021020080206200802031020080206200802061120080206200802071120080206200802081120080206200802091120080206200802101120080206200802111120080206200802121120080206200804042120080404200804052120080404200804062120080404200805013120080501200805023120080501200805033120080501200805043020080501200806074120080608200806084120080608200806094120080608200809135120080914200809145120080914200809155120080914200809276020081001200809286020081001200809296120081001200809306120081001200810016120081001200810026120081001200810036120081001200810046120081001200810056120081001200901010120090101200901020120090101200901030120090101200901040020090101200901241020090125200901251120090125200901261120090125200901271120090125200901281120090125200901291120090125200901301120090125200901311120090125200902011020090125200904042120090404200904052120090404200904062120090404200905013120090501200905023120090501200905033120090501200905284120090528200905294120090528200905304120090528200905314020090528200909276020091001200910016120091001200910026120091001200910036120091001200910046120091001200910055120091003200910065120091003200910075120091003200910085120091003200910105020091003201001010120100101201001020120100101201001030120100101201002131120100213201002141120100213201002151120100213201002161120100213201002171120100213201002181120100213201002191120100213201002201020100213201002211020100213201004032120100405201004042120100405201004052120100405201005013120100501201005023120100501201005033120100501201006124020100616201006134020100616201006144120100616201006154120100616201006164120100616201009195020100922201009225120100922201009235120100922201009245120100922201009255020100922201009266020101001201010016120101001201010026120101001201010036120101001201010046120101001201010056120101001201010066120101001201010076120101001201010096020101001201101010120110101201101020120110101201101030120110101201101301020110203201102021120110203201102031120110203201102041120110203201102051120110203201102061120110203201102071120110203201102081120110203201102121020110203201104022020110405201104032120110405201104042120110405201104052120110405201104303120110501201105013120110501201105023120110501201106044120110606201106054120110606201106064120110606201109105120110912201109115120110912201109125120110912201110016120111001201110026120111001201110036120111001201110046120111001201110056120111001201110066120111001201110076120111001201110086020111001201110096020111001201112310020120101201201010120120101201201020120120101201201030120120101201201211020120123201201221120120123201201231120120123201201241120120123201201251120120123201201261120120123201201271120120123201201281120120123201201291020120123201203312020120404201204012020120404201204022120120404201204032120120404201204042120120404201204283020120501201204293120120501201204303120120501201205013120120501201205023020120501201206224120120623201206234120120623201206244120120623201209295020120930201209305120120930201210016120121001201210026120121001201210036120121001201210046120121001201210056120121001201210066120121001201210076120121001201210086020121001201301010120130101201301020120130101201301030120130101201301050020130101201301060020130101201302091120130210201302101120130210201302111120130210201302121120130210201302131120130210201302141120130210201302151120130210201302161020130210201302171020130210201304042120130404201304052120130404201304062120130404201304273020130501201304283020130501201304293120130501201304303120130501201305013120130501201306084020130612201306094020130612201306104120130612201306114120130612201306124120130612201309195120130919201309205120130919201309215120130919201309225020130919201309296020131001201310016120131001201310026120131001201310036120131001201310046120131001201310056120131001201310066120131001201310076120131001201401010120140101201401261020140131201401311120140131201402011120140131201402021120140131201402031120140131201402041120140131201402051120140131201402061120140131201402081020140131201404052120140405201404062120140405201404072120140405201405013120140501201405023120140501201405033120140501201405043020140501201405314120140602201406014120140602201406024120140602201409065120140908201409075120140908201409085120140908201409286020141001201410016120141001201410026120141001201410036120141001201410046120141004201410056120141001201410066120141001201410076120141001201410116020141001201501010120150101201501020120150101201501030120150101201501040020150101201502151020150219201502181120150219201502191120150219201502201120150219201502211120150219201502221120150219201502231120150219201502241120150219201502281020150219201504042120150405201504052120150405201504062120150405201505013120150501201505023120150501201505033120150501201506204120150620201506214120150620201506224120150620201509038120150903201509048120150903201509058120150903201509068020150903201509265120150927201509275120150927201510016120151001201510026120151001201510036120151001201510046120151004201510056120151001201510066120151001201510076120151001201510106020151001201601010120160101201601020120160101201601030120160101201602061020160208201602071120160208201602081120160208201602091120160208201602101120160208201602111120160208201602121120160208201602131120160208201602141020160208201604022120160404201604032120160404201604042120160404201604303120160501201605013120160501201605023120160501201606094120160609201606104120160609201606114120160609201606124020160609201609155120160915201609165120160915201609175120160915201609185020160915201610016120161001201610026120161001201610036120161001201610046120161001201610056120161001201610066120161001201610076120161001201610086020161001201610096020161001201612310120170101201701010120170101201701020120170101201701221020170128201701271120170128201701281120170128201701291120170128201701301120170128201701311120170128201702011120170128201702021120170128201702041020170128201704012020170404201704022120170404201704032120170404201704042120170404201704293120170501201704303120170501201705013120170501201705274020170530201705284120170530201705294120170530201705304120170530201709306020171001201710016120171001201710026120171001201710036120171001201710045120171004201710056120171001201710066120171001201710076120171001201710086120171001201712300120180101201712310120180101201801010120180101201802111020180216201802151120180216201802161120180216201802171120180216201802181120180216201802191120180216201802201120180216201802211120180216201802241020180216201804052120180405201804062120180405201804072120180405201804082020180405201804283020180501201804293120180501201804303120180501201805013120180501201806164120180618201806174120180618201806184120180618201809225120180924201809235120180924201809245120180924201809296020181001201809306020181001201810016120181001201810026120181001201810036120181001201810046120181001201810056120181001201810066120181001201810076120181001201812290020190101201812300120190101201812310120190101201901010120190101201902021020190205201902031020190205201902041120190205201902051120190205201902061120190205201902071120190205201902081120190205201902091120190205201902101120190205201904052120190405201904062120190405201904072120190405201904283020190501201905013120190501201905023120190501201905033120190501201905043120190501201905053020190501201906074120190607201906084120190607201906094120190607201909135120190913201909145120190913201909155120190913201909296020191001201910016120191001201910026120191001201910036120191001201910046120191001201910056120191001201910066120191001201910076120191001201910126020191001202001010120200101202001191020200125202001241120200125202001251120200125202001261120200125202001271120200125202001281120200125202001291120200125202001301120200125202001311120200125202002011120200125202002021120200125202004042120200404202004052120200404202004062120200404202004263020200501202005013120200501202005023120200501202005033120200501202005043120200501202005053120200501202005093020200501202006254120200625202006264120200625202006274120200625202006284020200625202009277020201001202010017120201001202010026120201001202010036120201001202010046120201001202010056120201001202010066120201001202010076120201001202010086120201001202010106020201001202101010120210101202101020120210101202101030120210101202102071020210212202102111120210212202102121120210212202102131120210212202102141120210212202102151120210212202102161120210212202102171120210212202102201020210212202104032120210404202104042120210404202104052120210404202104253020210501202105013120210501202105023120210501202105033120210501202105043120210501202105053120210501202105083020210501202106124120210614202106134120210614202106144120210614202109185020210921202109195120210921202109205120210921202109215120210921202109266020211001202110016120211001202110026120211001202110036120211001202110046120211001202110056120211001202110066120211001202110076120211001202110096020211001202201010120220101202201020120220101202201030120220101202201291020220201202201301020220201202201311120220201202202011120220201202202021120220201202202031120220201202202041120220201202202051120220201202202061120220201202204022020220405202204032120220405202204042120220405202204052120220405202204243020220501202204303120220501202205013120220501202205023120220501202205033120220501202205043120220501202205073020220501202206034120220603202206044120220603202206054120220603202209105120220910202209115120220910202209125120220910202210016120221001202210026120221001202210036120221001202210046120221001202210056120221001202210066120221001202210076120221001202210086020221001202210096020221001';
+    var _NAMES_IN_USE=_NAMES,_DATA='200112290020020101200112300020020101200201010120020101200201020120020101200201030120020101200202091020020212200202101020020212200202121120020212200202131120020212200202141120020212200202151120020212200202161120020212200202171120020212200202181120020212200204273020020501200204283020020501200205013120020501200205023120020501200205033120020501200205043120020501200205053120020501200205063120020501200205073120021001200209286020021001200209296020021001200210016120021001200210026120021001200210036120021001200210046120021001200210056120021001200210066120021001200210076120021001200301010120030101200302011120030201200302021120030201200302031120030201200302041120030201200302051120030201200302061120030201200302071120030201200302081020030201200302091020030201200304263020030501200304273020030501200305013120030501200305023120030501200305033120030501200305043120030501200305053120030501200305063120030501200305073120031001200309276020031001200309286020031001200310016120031001200310026120031001200310036120031001200310046120031001200310056120031001200310066120031001200310076120031001200401010120040101200401171020040122200401181020040122200401221120040122200401231120040122200401241120040122200401251120040122200401261120040122200401271120040122200401281120040122200405013120040501200405023120040501200405033120040501200405043120040501200405053120040501200405063120040501200405073120041001200405083020040501200405093020040501200410016120041001200410026120041001200410036120041001200410046120041001200410056120041001200410066120041001200410076120041001200410096020041001200410106020041001200501010120050101200501020120050101200501030120050101200502051020050209200502061020050209200502091120050209200502101120050209200502111120050209200502121120050209200502131120050209200502141120050209200502151120050209200504303020050501200505013120050501200505023120050501200505033120050501200505043120050501200505053120050501200505063120050501200505073120051001200505083020050501200510016120051001200510026120051001200510036120051001200510046120051001200510056120051001200510066120051001200510076120051001200510086020051001200510096020051001200512310020060101200601010120060101200601020120060101200601030120060101200601281020060129200601291120060129200601301120060129200601311120060129200602011120060129200602021120060129200602031120060129200602041120060129200602051020060129200604293020060501200604303020060501200605013120060501200605023120060501200605033120060501200605043120060501200605053120060501200605063120060501200605073120061001200609306020061001200610016120061001200610026120061001200610036120061001200610046120061001200610056120061001200610066120061001200610076120061001200610086020061001200612300020070101200612310020070101200701010120070101200701020120070101200701030120070101200702171020070218200702181120070218200702191120070218200702201120070218200702211120070218200702221120070218200702231120070218200702241120070218200702251020070218200704283020070501200704293020070501200705013120070501200705023120070501200705033120070501200705043120070501200705053120070501200705063120070501200705073120070501200709296020071001200709306020071001200710016120071001200710026120071001200710036120071001200710046120071001200710056120071001200710066120071001200710076120071001200712290020080101200712300120080101200712310120080101200801010120080101200802021020080206200802031020080206200802061120080206200802071120080206200802081120080206200802091120080206200802101120080206200802111120080206200802121120080206200804042120080404200804052120080404200804062120080404200805013120080501200805023120080501200805033120080501200805043020080501200806074120080608200806084120080608200806094120080608200809135120080914200809145120080914200809155120080914200809276020081001200809286020081001200809296120081001200809306120081001200810016120081001200810026120081001200810036120081001200810046120081001200810056120081001200901010120090101200901020120090101200901030120090101200901040020090101200901241020090125200901251120090125200901261120090125200901271120090125200901281120090125200901291120090125200901301120090125200901311120090125200902011020090125200904042120090404200904052120090404200904062120090404200905013120090501200905023120090501200905033120090501200905284120090528200905294120090528200905304120090528200905314020090528200909276020091001200910016120091001200910026120091001200910036120091001200910046120091001200910055120091003200910065120091003200910075120091003200910085120091003200910105020091003201001010120100101201001020120100101201001030120100101201002131120100213201002141120100213201002151120100213201002161120100213201002171120100213201002181120100213201002191120100213201002201020100213201002211020100213201004032120100405201004042120100405201004052120100405201005013120100501201005023120100501201005033120100501201006124020100616201006134020100616201006144120100616201006154120100616201006164120100616201009195020100922201009225120100922201009235120100922201009245120100922201009255020100922201009266020101001201010016120101001201010026120101001201010036120101001201010046120101001201010056120101001201010066120101001201010076120101001201010096020101001201101010120110101201101020120110101201101030120110101201101301020110203201102021120110203201102031120110203201102041120110203201102051120110203201102061120110203201102071120110203201102081120110203201102121020110203201104022020110405201104032120110405201104042120110405201104052120110405201104303120110501201105013120110501201105023120110501201106044120110606201106054120110606201106064120110606201109105120110912201109115120110912201109125120110912201110016120111001201110026120111001201110036120111001201110046120111001201110056120111001201110066120111001201110076120111001201110086020111001201110096020111001201112310020120101201201010120120101201201020120120101201201030120120101201201211020120123201201221120120123201201231120120123201201241120120123201201251120120123201201261120120123201201271120120123201201281120120123201201291020120123201203312020120404201204012020120404201204022120120404201204032120120404201204042120120404201204283020120501201204293120120501201204303120120501201205013120120501201205023020120501201206224120120623201206234120120623201206244120120623201209295020120930201209305120120930201210016120121001201210026120121001201210036120121001201210046120121001201210056120121001201210066120121001201210076120121001201210086020121001201301010120130101201301020120130101201301030120130101201301050020130101201301060020130101201302091120130210201302101120130210201302111120130210201302121120130210201302131120130210201302141120130210201302151120130210201302161020130210201302171020130210201304042120130404201304052120130404201304062120130404201304273020130501201304283020130501201304293120130501201304303120130501201305013120130501201306084020130612201306094020130612201306104120130612201306114120130612201306124120130612201309195120130919201309205120130919201309215120130919201309225020130919201309296020131001201310016120131001201310026120131001201310036120131001201310046120131001201310056120131001201310066120131001201310076120131001201401010120140101201401261020140131201401311120140131201402011120140131201402021120140131201402031120140131201402041120140131201402051120140131201402061120140131201402081020140131201404052120140405201404062120140405201404072120140405201405013120140501201405023120140501201405033120140501201405043020140501201405314120140602201406014120140602201406024120140602201409065120140908201409075120140908201409085120140908201409286020141001201410016120141001201410026120141001201410036120141001201410046120141004201410056120141001201410066120141001201410076120141001201410116020141001201501010120150101201501020120150101201501030120150101201501040020150101201502151020150219201502181120150219201502191120150219201502201120150219201502211120150219201502221120150219201502231120150219201502241120150219201502281020150219201504042120150405201504052120150405201504062120150405201505013120150501201505023120150501201505033120150501201506204120150620201506214120150620201506224120150620201509038120150903201509048120150903201509058120150903201509068020150903201509265120150927201509275120150927201510016120151001201510026120151001201510036120151001201510046120151004201510056120151001201510066120151001201510076120151001201510106020151001201601010120160101201601020120160101201601030120160101201602061020160208201602071120160208201602081120160208201602091120160208201602101120160208201602111120160208201602121120160208201602131120160208201602141020160208201604022120160404201604032120160404201604042120160404201604303120160501201605013120160501201605023120160501201606094120160609201606104120160609201606114120160609201606124020160609201609155120160915201609165120160915201609175120160915201609185020160915201610016120161001201610026120161001201610036120161001201610046120161001201610056120161001201610066120161001201610076120161001201610086020161001201610096020161001201612310120170101201701010120170101201701020120170101201701221020170128201701271120170128201701281120170128201701291120170128201701301120170128201701311120170128201702011120170128201702021120170128201702041020170128201704012020170404201704022120170404201704032120170404201704042120170404201704293120170501201704303120170501201705013120170501201705274020170530201705284120170530201705294120170530201705304120170530201709306020171001201710016120171001201710026120171001201710036120171001201710045120171004201710056120171001201710066120171001201710076120171001201710086120171001201712300120180101201712310120180101201801010120180101201802111020180216201802151120180216201802161120180216201802171120180216201802181120180216201802191120180216201802201120180216201802211120180216201802241020180216201804052120180405201804062120180405201804072120180405201804082020180405201804283020180501201804293120180501201804303120180501201805013120180501201806164120180618201806174120180618201806184120180618201809225120180924201809235120180924201809245120180924201809296020181001201809306020181001201810016120181001201810026120181001201810036120181001201810046120181001201810056120181001201810066120181001201810076120181001201812290020190101201812300120190101201812310120190101201901010120190101201902021020190205201902031020190205201902041120190205201902051120190205201902061120190205201902071120190205201902081120190205201902091120190205201902101120190205201904052120190405201904062120190405201904072120190405201904283020190501201905013120190501201905023120190501201905033120190501201905043120190501201905053020190501201906074120190607201906084120190607201906094120190607201909135120190913201909145120190913201909155120190913201909296020191001201910016120191001201910026120191001201910036120191001201910046120191001201910056120191001201910066120191001201910076120191001201910126020191001202001010120200101202001191020200125202001241120200125202001251120200125202001261120200125202001271120200125202001281120200125202001291120200125202001301120200125202001311120200125202002011120200125202002021120200125202004042120200404202004052120200404202004062120200404202004263020200501202005013120200501202005023120200501202005033120200501202005043120200501202005053120200501202005093020200501202006254120200625202006264120200625202006274120200625202006284020200625202009277020201001202010017120201001202010026120201001202010036120201001202010046120201001202010056120201001202010066120201001202010076120201001202010086120201001202010106020201001202101010120210101202101020120210101202101030120210101202102071020210212202102111120210212202102121120210212202102131120210212202102141120210212202102151120210212202102161120210212202102171120210212202102201020210212202104032120210404202104042120210404202104052120210404202104253020210501202105013120210501202105023120210501202105033120210501202105043120210501202105053120210501202105083020210501202106124120210614202106134120210614202106144120210614202109185020210921202109195120210921202109205120210921202109215120210921202109266020211001202110016120211001202110026120211001202110036120211001202110046120211001202110056120211001202110066120211001202110076120211001202110096020211001202201010120220101202201020120220101202201030120220101202201291020220201202201301020220201202201311120220201202202011120220201202202021120220201202202031120220201202202041120220201202202051120220201202202061120220201202204022020220405202204032120220405202204042120220405202204052120220405202204243020220501202204303120220501202205013120220501202205023120220501202205033120220501202205043120220501202205073020220501202206034120220603202206044120220603202206054120220603202209105120220910202209115120220910202209125120220910202210016120221001202210026120221001202210036120221001202210046120221001202210056120221001202210066120221001202210076120221001202210086020221001202210096020221001202212310120230101202301010120230101202301020120230101202301211120230122202301221120230122202301231120230122202301241120230122202301251120230122202301261120230122202301271120230122202301281020230122202301291020230122202304052120230405202304233020230501202304293120230501202304303120230501202305013120230501202305023120230501202305033120230501202305063020230501202306224120230622202306234120230622202306244120230622202306254020230622202309295120230929202309306120231001202310016120231001202310026120231001202310036120231001202310046120231001202310056120231001202310066120231001202310076020231001202310086020231001';
     var _DATA_IN_USE = _DATA;
     var _padding = function(n){
       return (n<10?'0':'')+n;
@@ -3297,7 +3760,7 @@
       while(data.length>=_SIZE){
         var segment = data.substr(0,_SIZE);
         var day = segment.substr(0,8);
-        var remove = _TAG_REMOVE == segment.substr(8, 1);
+        var remove = _TAG_REMOVE === segment.substr(8, 1);
         var holiday = _getHoliday([day]);
         if(!holiday){
           if (!remove) {
@@ -3419,10 +3882,13 @@
     var _fromLunar=function(lunar){
       return {
         _p:{sect:2,lunar:lunar},
-        setSect:function(sect){this._p.sect=(1==sect)?1:2;},
+        setSect:function(sect){
+          sect *= 1;
+          this._p.sect=(1===sect)?1:2;
+        },
         getSect:function(){return this._p.sect;},
-        getDayGanIndex:function(){return 2==this._p.sect?this._p.lunar.getDayGanIndexExact2():this._p.lunar.getDayGanIndexExact();},
-        getDayZhiIndex:function(){return 2==this._p.sect?this._p.lunar.getDayZhiIndexExact2():this._p.lunar.getDayZhiIndexExact();},
+        getDayGanIndex:function(){return 2===this._p.sect?this._p.lunar.getDayGanIndexExact2():this._p.lunar.getDayGanIndexExact();},
+        getDayZhiIndex:function(){return 2===this._p.sect?this._p.lunar.getDayZhiIndexExact2():this._p.lunar.getDayZhiIndexExact();},
         getYear:function(){return this._p.lunar.getYearInGanZhiExact();},
         getYearGan:function(){return this._p.lunar.getYearGanExact();},
         getYearZhi:function(){return this._p.lunar.getYearZhiExact();},
@@ -3442,7 +3908,7 @@
         },
         _getDiShi:function(zhiIndex){
           var offset = CHANG_SHENG_OFFSET[this.getDayGan()];
-          var index = offset + (this.getDayGanIndex()%2==0?zhiIndex:-zhiIndex);
+          var index = offset + (this.getDayGanIndex()%2===0?zhiIndex:-zhiIndex);
           if(index>=12){
             index -= 12;
           }
@@ -3474,9 +3940,9 @@
         getMonthDiShi:function(){return this._getDiShi(this._p.lunar.getMonthZhiIndexExact());},
         getMonthXun:function(){return this._p.lunar.getMonthXunExact()},
         getMonthXunKong:function(){return this._p.lunar.getMonthXunKongExact()},
-        getDay:function(){return 2==this._p.sect?this._p.lunar.getDayInGanZhiExact2():this._p.lunar.getDayInGanZhiExact();},
-        getDayGan:function(){return 2==this._p.sect?this._p.lunar.getDayGanExact2():this._p.lunar.getDayGanExact();},
-        getDayZhi:function(){return 2==this._p.sect?this._p.lunar.getDayZhiExact2():this._p.lunar.getDayZhiExact();},
+        getDay:function(){return 2===this._p.sect?this._p.lunar.getDayInGanZhiExact2():this._p.lunar.getDayInGanZhiExact();},
+        getDayGan:function(){return 2===this._p.sect?this._p.lunar.getDayGanExact2():this._p.lunar.getDayGanExact();},
+        getDayZhi:function(){return 2===this._p.sect?this._p.lunar.getDayZhiExact2():this._p.lunar.getDayZhiExact();},
         getDayHideGan:function(){return LunarUtil.ZHI_HIDE_GAN[this.getDayZhi()];},
         getDayWuXing:function(){return LunarUtil.WU_XING_GAN[this.getDayGan()]+LunarUtil.WU_XING_ZHI[this.getDayZhi()];},
         getDayNaYin:function(){return LunarUtil.NAYIN[this.getDay()];},
@@ -3492,8 +3958,8 @@
           return l;
         },
         getDayDiShi:function(){return this._getDiShi(this.getDayZhiIndex());},
-        getDayXun:function(){return 2==this._p.sect?this._p.lunar.getDayXunExact2():this._p.lunar.getDayXunExact()},
-        getDayXunKong:function(){return 2==this._p.sect?this._p.lunar.getDayXunKongExact2():this._p.lunar.getDayXunKongExact()},
+        getDayXun:function(){return 2===this._p.sect?this._p.lunar.getDayXunExact2():this._p.lunar.getDayXunExact()},
+        getDayXunKong:function(){return 2===this._p.sect?this._p.lunar.getDayXunKongExact2():this._p.lunar.getDayXunKongExact()},
         getTime:function(){return this._p.lunar.getTimeInGanZhi();},
         getTimeGan:function(){return this._p.lunar.getTimeGan();},
         getTimeZhi:function(){return this._p.lunar.getTimeZhi();},
@@ -3528,8 +3994,8 @@
         getTaiYuanNaYin:function(){return LunarUtil.NAYIN[this.getTaiYuan()];},
         getTaiXi:function(){
           var lunar = this._p.lunar;
-          var ganIndex = (2 == sect) ? lunar.getDayGanIndexExact2() : lunar.getDayGanIndexExact();
-          var zhiIndex = (2 == sect) ? lunar.getDayZhiIndexExact2() : lunar.getDayZhiIndexExact();
+          var ganIndex = (2 === this._p.sect) ? lunar.getDayGanIndexExact2() : lunar.getDayGanIndexExact();
+          var zhiIndex = (2 === this._p.sect) ? lunar.getDayZhiIndexExact2() : lunar.getDayZhiIndexExact();
           return LunarUtil.HE_GAN_5[ganIndex]+LunarUtil.HE_ZHI_6[zhiIndex];
         },
         getTaiXiNaYin:function(){return LunarUtil.NAYIN[this.getTaiXi()];},
@@ -3587,7 +4053,8 @@
         getShenGongNaYin:function(){return LunarUtil.NAYIN[this.getShenGong()];},
         getLunar:function(){return this._p.lunar;},
         getYun:function(gender, sect){
-          sect = (2 == sect) ? sect : 1;
+          sect *= 1;
+          sect = (2 === sect) ? sect : 1;
           var lunar = this.getLunar();
           var yang = 0 === lunar.getYearGanIndexExact() % 2;
           var man = 1 === gender;
@@ -3605,7 +4072,7 @@
             var hour = 0;
 
             if (2 === sect) {
-              var minutes = Math.floor((end.getCalendar() - start.getCalendar()) / 60000);
+              var minutes = end.subtractMinute(start);
               year = Math.floor(minutes / 4320);
               minutes -= year * 4320;
               month = Math.floor(minutes / 360);
@@ -3619,7 +4086,7 @@
               // 时辰差
               var hourDiff = endTimeZhiIndex - startTimeZhiIndex;
               // 天数差
-              var dayDiff = ExactDate.getDaysBetweenYmd(start.getYear(), start.getMonth(), start.getDay(), end.getYear(), end.getMonth(), end.getDay());
+              var dayDiff = end.subtract(start);
               if (hourDiff < 0) {
                 hourDiff += 12;
                 dayDiff--;
@@ -3827,13 +4294,11 @@
             isForward: function(){return this._p.forward;},
             getLunar: function(){return this._p.lunar;},
             getStartSolar: function(){
-              var birth = this._p.lunar.getSolar();
-              var c = ExactDate.fromYmdHms(birth.getYear(), birth.getMonth(), birth.getDay(), birth.getHour(), birth.getMinute(), birth.getSecond());
-              c.setFullYear(birth.getYear() + this._p.startYear);
-              c.setMonth(birth.getMonth()-1+this._p.startMonth);
-              c.setDate(birth.getDay() + this._p.startDay);
-              c.setHours(birth.getHour() + this._p.startHour);
-              return Solar.fromDate(c);
+              var solar = this._p.lunar.getSolar();
+              solar = solar.nextYear(this._p.startYear);
+              solar = solar.nextMonth(this._p.startMonth);
+              solar = solar.next(this._p.startDay);
+              return solar.nextHour(this._p.startHour);
             },
             getDaYun: function(n){
               if (!n) {
@@ -3957,8 +4422,8 @@
         toString:function(){return this.getGanZhi();}
       };
     };
-    return  {
-      fromYmdHms:function(lunarYear,lunarMonth,lunarDay,hour,minute,second){return _fromYmdHms(lunarYear,lunarMonth,lunarDay,hour,minute,second);},
+    return {
+      fromYmdHms:function(lunarYear,lunarMonth,lunarDay,hour,minute,second){return _fromYmdHms(lunarYear,lunarMonth,lunarDay,hour,minute,second);}
     };
   })();
   var FotoUtil = (function(){
@@ -3968,7 +4433,7 @@
         _p:{
           name:name,
           result:result?result:'',
-          everyMonth:everyMonth?true:false,
+          everyMonth:!!everyMonth,
           remark:remark?remark:''
         },
         getName:function(){return this._p.name;},
