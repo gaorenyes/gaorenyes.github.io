@@ -11,43 +11,77 @@
 <link rel="stylesheet" href="markdown.css">
 <link rel="stylesheet" href="page.css">
 <style type="text/css">
+a{
+  color:#1F80A9;
+}
 #yueli{
   display:block;
-  margin:10px;
-  padding:0;
-  width:100%;
-  height:500px;
-  list-style:none;
+  margin: 20px auto;
+  width: 725px;
+  border-right: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  overflow: hidden;
+  padding: 0;
+  box-sizing: border-box;
+}
+#yueli * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 #yueli li{
   position:relative;
   display:block;
   float:left;
-  width:14.08571%;
-  height:60px;
-  margin:0;
-  padding:0;
-  text-align:center;
-  cursor:default;
-  font-size:16px;
-  overflow:hidden;
-  background:#F8F8F8;
-  margin:0.1%;
+  width:98px;
+  text-align: center;
+  border-left: 1px solid #DDD;
+  border-top: 1px solid #DDD;
+  overflow: hidden;
 }
-#yueli li.week{
-  line-height:60px;
-  background:#5BC0DE;
-  color:#fff;
+#yueli ul.week li{
+  height: 45px;
+  line-height: 45px;
+  color: #252525;
+  background-color: #EEE;
+  font-size: 14px;
 }
-#yueli b{
-  font-size:12px;
-  font-weight:normal;
-  color:#888;
+#yueli li.first{
+  width: 136px;
+}
+#yueli ul.day li{
+  height: 86px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1F80A9;
+  padding-top: 16px;
+}
+#yueli ul.day li.row{
+  width:38px;
+  color: #A0A0A0;
+  font-size:14px;
+  padding-top: 24px;
+  font-weight: normal;
+  overflow: hidden;
+}
+#yueli ul.day li.other *{
+  filter: alpha(opacity=40);
+  -moz-opacity: 0.4;
+  opacity: 0.4;
+}
+#yueli ul.day li.other{
+  color: #AAA;
+}
+#yueli b,#yueli i{
+  display: block;
+  font-style:normal;
+  font-weight: normal;
+  font-size: 13px;
+  color: #8C8C8C;
 }
 #yueli i{
-  font-size:12px;
-  font-style:normal;
-  color:#C40000;
+  color: #D02F12;
+  font-size:9px;
 }
 #yueli u{
   font-size:12px;
@@ -61,12 +95,23 @@
   height:26px;
   text-align:center;
   line-height:26px;
-  background:#5CB85C;
 }
-#yueli u.work{
-  background:#D9534F;
+#yueli u::before{
+  content:'';
+  position: absolute;
+  right:0;
+  top:0;
+  border:20px solid #5CB85C;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  z-index: -1;
+}
+#yueli u.work::before{
+  border-right-color:#D9534F;
+  border-top-color:#D9534F;
 }
 .bar{
+  margin-top:20px;
   text-align:center;
   height:30px;
   line-height:30px;
@@ -77,26 +122,17 @@
 </style>
 </head>
 <body>
-<div class="article">
-<textarea class="md">
-## 月历
-
-</textarea>
 <div class="bar">
   <a href="javascript:void(0);" id="btn-prev" target="_self">上一月</a>
   <span id="month"></span>
   <a href="javascript:void(0);" id="btn-next" target="_self">下一月</a>
 </div>
-<ul id="yueli"></ul>
-</div>
+<div id="yueli"></div>
 <script src="jquery.min.js"></script>
 <script src="highlight.min.js"></script>
 <script src="marked.min.js"></script>
 <script src="common.js"></script>
 <script src="lunar.js"></script>
-<script>
-mdr('.md');
-</script>
 <script>
 (function(){
 
@@ -104,57 +140,73 @@ function generate(mm){
   document.getElementById('month').innerHTML = mm.toFullString();
   var s = '';
   var WEEK = '日一二三四五六'.split('');
-  var days = mm.getDays();
-  var week = days[0].getWeek();
-  for(var i=0;i<7;i++){
-    s += '<li class="week">'+WEEK[i]+'</li>';
+  var weeks = mm.getWeeks(0);
+  
+  s += '<ul class="week">';
+  for(var i=0, j=WEEK.length;i<j;i++){
+    s += '<li';
+    if (i == 0) {
+      s += ' class="first"';
+    }
+    s += '>星期'+WEEK[i]+'</li>';
   }
-  for(var i=0;i<week;i++){
-    s += '<li></li>';
-  }
-  for(var i=0,j=days.length;i<j;i++){
-    var d = days[i];
-    var dl = d.getLunar();
-    var fs = [];
-    var jq = dl.getJieQi();
-    if(jq){
-      fs.push(jq);
-    }
-    var festivals = d.getFestivals();
-    for(var m=0,n=festivals.length;m<n;m++){
-      fs.push(festivals[m]);
-    }
-    festivals = d.getOtherFestivals();
-    for(var m=0,n=festivals.length;m<n;m++){
-      fs.push(festivals[m]);
-    }
-    festivals = dl.getFestivals();
-    for(var m=0,n=festivals.length;m<n;m++){
-      fs.push(festivals[m]);
-    }
-    festivals = dl.getOtherFestivals();
-    for(var m=0,n=festivals.length;m<n;m++){
-      fs.push(festivals[m]);
-    }
-    s += '<li>'+d.getDay()+'<br />';
-    if(fs.length>0){
-      s += '<i>'+fs.join(',')+'</i>';
-    }else{
-      if(1==dl.getDay()){
-        s += '<b>'+dl.getMonthInChinese()+'月</b>';
+  s += '</ul>';
+
+  for (var x=0,y=weeks.length;x<y;x++) {
+    var week = weeks[x];
+    var days = week.getDays();
+    s += '<ul class="day">';
+    s += '<li class="row">' + week.getIndexInYear() + '<br>周</li>';
+    for(var i=0,j=days.length;i<j;i++){
+      var d = days[i];
+      var dl = d.getLunar();
+      var fs = [];
+      var jq = dl.getJieQi();
+      if(jq){
+        fs.push(jq);
+      }
+      var festivals = d.getFestivals();
+      for(var m=0,n=festivals.length;m<n;m++){
+        fs.push(festivals[m]);
+      }
+      festivals = d.getOtherFestivals();
+      for(var m=0,n=festivals.length;m<n;m++){
+        fs.push(festivals[m]);
+      }
+      festivals = dl.getFestivals();
+      for(var m=0,n=festivals.length;m<n;m++){
+        fs.push(festivals[m]);
+      }
+      festivals = dl.getOtherFestivals();
+      for(var m=0,n=festivals.length;m<n;m++){
+        fs.push(festivals[m]);
+      }
+      s += '<li';
+      if (d.getMonth() != mm.getMonth()) {
+        s += ' class="other"';
+      }
+      s += '>'+d.getDay();
+      if(fs.length>0){
+        var f = fs.join(',');
+        s += '<i title="'+f+'">'+f+'</i>';
       }else{
-        s += '<b>'+dl.getDayInChinese()+'</b>';
+        if(1==dl.getDay()){
+          s += '<b>'+dl.getMonthInChinese()+'月</b>';
+        }else{
+          s += '<b>'+dl.getDayInChinese()+'</b>';
+        }
       }
-    }
-    var h = HolidayUtil.getHoliday(d.toYmd());
-    if(h){
-      s += '<u';
-      if(h.isWork()){
-        s += ' class="work"';
+      var h = HolidayUtil.getHoliday(d.toYmd());
+      if(h){
+        s += '<u';
+        if(h.isWork()){
+          s += ' class="work"';
+        }
+        s += '>'+(h.isWork()?'班':'休')+'</u>';
       }
-      s += '>'+(h.isWork()?'班':'休')+'</u>';
+      s += '</li>';
     }
-    s += '</li>';
+    s += '</ul>';
   }
   document.getElementById('yueli').innerHTML = s;
 }
@@ -176,4 +228,3 @@ function generate(mm){
 </script>
 </body>
 </html>
-
