@@ -11,6 +11,22 @@
 <link rel="stylesheet" href="markdown.css">
 <link rel="stylesheet" href="page.css">
 <style type="text/css">
+.bar{
+  text-align:center;
+}
+#year{
+  margin: 20px;
+  border: 1px solid #D7D9E0;
+  box-sizing: border-box;
+  padding: 7px;
+  border-radius: 6px;
+  line-height: 1;
+  position: relative;
+  background: #FFFFFF;
+  width: 100px;
+  font-size: 16px;
+  text-align: center;
+}
 #guali{
   position:relative;
   margin-bottom:20px;
@@ -19,17 +35,30 @@
   overflow:hidden;
 }
 #guali ul.month{
+  position: relative;
   display:block;
   margin:10px;
   padding:0;
   width:350px;
-  height:420px;
+  height:334px;
   float:left;
   list-style:none;
-  background-color:#F8F8F8
+  background-color:#FAFAFA
 }
-#guali h3{clear:both;text-align:center;}
-#guali ul.month li{
+#guali h3{
+  position: absolute;
+  left:0;
+  top:0;
+  font-size:80px;
+  width:100%;
+  height:334px;
+  text-align: center;
+  line-height: 334px;
+  color:#333;
+  opacity: 0.1;
+  filter: alpha(opacity=10);
+}
+#guali li{
   position:relative;
   display:block;
   float:left;
@@ -40,70 +69,60 @@
   text-align:center;
   cursor:default;
   line-height:1em;
+  color: #444;
 }
-#guali ul.month b{
+#guali li.week{
+  height: 34px;
+  line-height: 34px;
+  font-size: 12px;
+}
+#guali b{
   font-size:9px;
   font-weight:normal;
-  color:#888;
+  color:#999;
 }
-#guali ul.month i{
+#guali i{
+  display: block;
   font-size:9px;
   font-style:normal;
-  color:#C40000;
+  color:#D02F12;
   white-space:nowrap;
+  overflow: hidden;
 }
-#guali ul.month u{
+#guali u{
   font-size:9px;
   font-style:normal;
   text-decoration:none;
-  color:#FFF;
   position:absolute;
-  right:0;
+  right:4px;
   top:0;
-  width:16px;
-  height:16px;
-  text-align:center;
-  line-height:16px;
-  background:#5CB85C;
+  color:#5CB85C;
 }
-#guali ul.month u.work{
-  background:#D9534F;
+#guali u.work{
+  color:#333;
 }
-.bar{
-  text-align:center;
-  height:30px;
-  line-height:30px;
+#guali li.today, #guali li.today b, #guali li.today i{
+  color: #09C;
 }
-.bar span{
-  margin:0 30px;
+#guali li.today{
+  font-weight: bold;
 }
 </style>
 </head>
 <body>
-<div class="article">
-<textarea class="md">
-## 年历
-
-</textarea>
 <div class="bar">
-  <a href="javascript:void(0);" id="btn-prev" target="_self">上一年</a>
-  <span id="year"></span>
-  <a href="javascript:void(0);" id="btn-next" target="_self">下一年</a>
+  <input type="text" id="year" placeholder="请输入阳历年份">
 </div>
 <div id="guali"></div>
-</div>
 <script src="jquery.min.js"></script>
 <script src="highlight.min.js"></script>
 <script src="marked.min.js"></script>
 <script src="common.js"></script>
 <script src="lunar.js"></script>
 <script>
-mdr('.md');
-</script>
-<script>
 (function(){
+  var today = Solar.fromDate(new Date()).toYmd();
   function generate(year){
-    document.getElementById('year').innerHTML = year.toFullString();
     var months = year.getMonths();
     var s = '';
     var WEEK = '日一二三四五六'.split('');
@@ -113,7 +132,7 @@ mdr('.md');
       var days = mm.getDays();
       var week = days[0].getWeek();
       for(var i=0;i<7;i++){
-        s += '<li>'+WEEK[i]+'</li>';
+        s += '<li class="week">'+WEEK[i]+'</li>';
       }
       for(var i=0;i<week;i++){
         s += '<li></li>';
@@ -134,7 +153,11 @@ mdr('.md');
         for(var m=0,n=lf.length;m<n;m++){
           fs.push(lf[m]);
         }
-        s += '<li>'+d.getDay()+'<br />';
+        s += '<li';
+        if (d.toYmd() == today) {
+          s += ' class="today"';
+        }
+        s += '>'+d.getDay()+'<br />';
         if(fs.length>0){
           s += '<i>'+fs.join(',')+'</i>';
         }else{
@@ -158,19 +181,52 @@ mdr('.md');
     }
     document.getElementById('guali').innerHTML = s;
   }
-  
-  var year = SolarYear.fromDate(new Date());
-  generate(year);
-  
-  document.getElementById('btn-prev').onclick = function(){
-    year = year.next(-1);
-    generate(year);
+
+  var compute = function(){
+    try{
+      var year = parseInt($('#year').val(), 10);
+      if(isNaN(year)){
+        return;
+      }
+      if(year<1||year>9999){
+        return;
+      }
+      generate(SolarYear.fromYear(year));
+    }catch(e){
+      console.log(e);
+    }
+  };
+
+  var today = Solar.fromDate(new Date());
+  $('#year').val(today.getYear());
+
+  compute();
+
+  var throttle = function(fn,delay,atleast){
+    var timer = null;
+    var previous = null;
+    return function(){
+      var now = +new Date();
+      if(!previous) previous = now;
+      if(atleast && now - previous > atleast){
+        fn();
+        previous = now;
+        clearTimeout(timer);
+      } else {
+        clearTimeout(timer);
+        timer = setTimeout(function(){
+          fn();
+          previous = null;
+        }, delay);
+      }
+    }
   };
   
-  document.getElementById('btn-next').onclick = function(){
-    year = year.next(1);
-    generate(year);
-  };
+  var onChange = throttle(function(){
+    compute();
+  },20,50);
+
+  $('#year').on('input propertychange', onChange);
 })();
 </script>
 </body>
